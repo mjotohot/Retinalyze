@@ -1,51 +1,51 @@
-import { BiSolidDashboard } from "react-icons/bi";
-import { FaUserDoctor } from "react-icons/fa6";
-import { MdGroupAdd } from "react-icons/md";
-import { FaUserInjured } from "react-icons/fa";
+import { BiSolidDashboard } from 'react-icons/bi'
+import { FaUserDoctor } from 'react-icons/fa6'
+import { MdGroupAdd } from 'react-icons/md'
+import { FaUserInjured } from 'react-icons/fa'
 
 // sidebar navigation items for admin role
 export const adminNavItems = [
   {
-    label: "Dashboard",
-    path: "/admin/dashboard",
+    label: 'Dashboard',
+    path: '/admin/dashboard',
     icon: BiSolidDashboard,
   },
   {
-    label: "Add Doctor",
-    path: "/admin/add",
+    label: 'Add Doctor',
+    path: '/admin/add',
     icon: MdGroupAdd,
   },
-];
+]
 
 // sidebar navigation items for doctor role
 export const doctorsNavItems = [
   {
-    label: "Dashboard",
-    path: "/dashboard",
+    label: 'Dashboard',
+    path: '/dashboard',
     icon: BiSolidDashboard,
   },
   {
-    label: "Add Patient",
-    path: "/add",
+    label: 'Add Patient',
+    path: '/add',
     icon: MdGroupAdd,
   },
   {
-    label: "Patient List",
-    path: "/patients",
+    label: 'Patient List',
+    path: '/patients',
     icon: FaUserInjured,
   },
   {
-    label: "Profile",
-    path: "/profile",
+    label: 'Profile',
+    path: '/profile',
     icon: FaUserDoctor,
   },
-];
+]
 
 // sidebar navigation items for patient role
 export const patientsNavItems = [
   {
-    label: "Results",
-    path: "/results",
+    label: 'Results',
+    path: '/results',
     icon: BiSolidDashboard,
   },
-];
+]

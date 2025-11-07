@@ -1,68 +1,93 @@
-import { useState } from "react";
-import Sidebar from "../../components/navigations/Sidebar";
-import { createDoctorAccount } from "../../services/createDoctorAccount";
-import InputField from "../../components/commons/InputField";
-import { addDoctorInputs } from "../../lib/addDoctorInputs";
+import { useState, useRef, useEffect } from 'react'
+import Sidebar from '../../components/navigations/Sidebar'
+import { createDoctorAccount } from '../../services/createDoctorAccount'
+import InputField from '../../components/commons/InputField'
+import { addDoctorInputs } from '../../lib/addDoctorInputs'
+import Modal from '../../components/commons/Modal'
 
 // Component for adding a new doctor account
 const AddDoctor = () => {
+  // Ref for the modal
+  const modalRef = useRef(null)
+
   // Form state
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    full_name: "",
-    address: "",
-    phone_number: "",
-    specialization: "",
-    license_number: "",
-    clinic_name: "",
-    professional_title: "",
-    years_experience: "",
-  });
+    email: '',
+    password: '',
+    full_name: '',
+    address: '',
+    phone_number: '',
+    specialization: '',
+    license_number: '',
+    clinic_name: '',
+    professional_title: '',
+    years_experience: '',
+  })
+
+  // Modal state
+  const [modalData, setModalData] = useState({
+    // State for modal content
+    isOpen: false,
+    type: '',
+    message: '',
+  })
 
   // Loading and message state
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false)
+
+  // Effect to open modal when modalData.isOpen changes
+  useEffect(() => {
+    if (modalData.isOpen) {
+      modalRef.current?.showModal()
+    }
+  }, [modalData.isOpen])
 
   // Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setMessage(""); // Clear previous messages
-    setLoading(true); // Set loading state
-  
+    e.preventDefault()
+    setLoading(true)
+
     try {
       // Destructure email and password from formData
-      const { email, password, ...doctorData } = formData;
+      const { email, password, ...doctorData } = formData
       // Call service to create doctor account
-      await createDoctorAccount(email, password, doctorData);
-      // On success, show success message and reset form
-      setMessage("Doctor account successfully created!");
+      const response = await createDoctorAccount(email, password, doctorData)
+      // Show success modal
+      setModalData({
+        isOpen: true,
+        type: 'success',
+        message: response?.message || 'Doctor account created successfully.',
+      })
       // Reset form data
       setFormData({
-        email: "",
-        password: "",
-        full_name: "",
-        address: "",
-        phone_number: "",
-        specialization: "",
-        license_number: "",
-        clinic_name: "",
-        professional_title: "",
-        years_experience: "",
-      });
+        email: '',
+        password: '',
+        full_name: '',
+        address: '',
+        phone_number: '',
+        specialization: '',
+        license_number: '',
+        clinic_name: '',
+        professional_title: '',
+        years_experience: '',
+      })
     } catch (error) {
-      console.error(error);
-      setMessage(error.message || "Failed to create doctor account.");
+      console.error(error)
+      setModalData({
+        isOpen: true,
+        type: 'error',
+        message: error.message || 'Account creation failed.',
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -111,27 +136,14 @@ const AddDoctor = () => {
                   ))}
                 </div>
 
-                {/* Message */}
-                {message && (
-                  <p
-                    className={`mt-2 text-sm ${
-                      message.includes("successfully")
-                        ? "text-green-600"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {message}
-                  </p>
-                )}
-
                 {/* Submit */}
-                <div className="mt-3 flex justify-center">
+                <div className="mt-5 flex justify-center">
                   <button
                     type="submit"
                     className="btn rounded-md border-none btn-neutral"
                     disabled={loading}
                   >
-                    {loading ? "Creating..." : "Create Account"}
+                    {loading ? 'Creating...' : 'Create Account'}
                   </button>
                 </div>
               </form>
@@ -139,8 +151,26 @@ const AddDoctor = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
-};
 
-export default AddDoctor;
+      {/* Modal for displaying message */}
+      {modalData.isOpen && (
+        <Modal
+          ref={modalRef}
+          title={modalData.type === 'success' ? 'Success' : 'Error'}
+          message={modalData.message}
+          confirmLabel="OK"
+          color={
+            modalData.type === 'success'
+              ? 'bg-green-500 hover:bg-green-600'
+              : 'bg-red-500 hover:bg-red-600'
+          }
+          onConfirm={() => {
+            setModalData({ ...modalData, isOpen: false })
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+export default AddDoctor

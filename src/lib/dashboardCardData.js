@@ -1,36 +1,36 @@
-import { LuUsers } from "react-icons/lu";
-import { IoWarningOutline } from "react-icons/io5";
-import { IoCalendarClearOutline } from "react-icons/io5";
-import { FaArrowTrendUp } from "react-icons/fa6";
+import { HiMiniUsers } from 'react-icons/hi2'
+import { TiWarning } from 'react-icons/ti'
+import { IoCalendarNumberSharp } from 'react-icons/io5'
+import { TbDeviceHeartMonitorFilled } from 'react-icons/tb'
 
 // Dashboard card data
 export const cards = [
   {
     id: 1,
-    title: "Total Patients",
-    icon: LuUsers,
+    title: 'Total Patients',
+    icon: HiMiniUsers,
     count: 58,
-    detail: "+2 from last week",
+    detail: '+2 from last week',
   },
   {
     id: 2,
-    title: "High Risk Cases",
-    icon: IoWarningOutline,
+    title: 'Patients Under Monitoring',
+    icon: TbDeviceHeartMonitorFilled,
     count: 12,
-    detail: "Require immediate attention",
+    detail: 'Require immediate attention',
   },
   {
     id: 3,
-    title: "This Week",
-    icon: IoCalendarClearOutline,
+    title: 'This Week',
+    icon: IoCalendarNumberSharp,
     count: 23,
-    detail: "Analysis completed",
+    detail: 'Analysis completed',
   },
   {
     id: 4,
-    title: "Success Rate",
-    icon: FaArrowTrendUp,
-    count: "94.2%",
-    detail: "Accurate predictions",
+    title: 'High Risk Patients',
+    icon: TiWarning,
+    count: '10',
+    detail: 'Critical condition',
   },
-];
+]

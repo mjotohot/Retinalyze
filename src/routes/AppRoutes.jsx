@@ -1,15 +1,15 @@
-import { Routes, Route } from "react-router";
-import AuthLayout from "../components/layouts/AuthLayout";
-import ProtectedRoute from "./ProtectedRoute";
-import HomeRedirect from "./HomeRedirect";
-import Login from "../views/auth/Login";
-import ForgotPassword from "../views/auth/ForgotPassword";
-import ResetPassword from "../views/auth/ResetPassword";
-import Dashboard from "../views/dashboard/Dashboard";
-import PatientList from "../views/patient/PatientList";
-import AddPatient from "../views/patient/AddPatient";
-import Profile from "../views/profile/Profile";
-import AddDoctor from "../views/admin/AddDoctor";
+import { Routes, Route } from 'react-router'
+import AuthLayout from '../components/layouts/AuthLayout'
+import ProtectedRoute from './ProtectedRoute'
+import HomeRedirect from './HomeRedirect'
+import Login from '../views/auth/Login'
+import ForgotPassword from '../views/auth/ForgotPassword'
+import ResetPassword from '../views/auth/ResetPassword'
+import Dashboard from '../views/dashboard/Dashboard'
+import PatientList from '../views/patient/PatientList'
+import AddPatient from '../views/patient/AddPatient'
+import Profile from '../views/profile/Profile'
+import AddDoctor from '../views/admin/AddDoctor'
 
 const AppRoutes = () => {
   return (
@@ -41,7 +41,7 @@ const AppRoutes = () => {
       {/* Protected routes for Patients */}
       <Route path="/user" element={<ProtectedRoute />}></Route>
     </Routes>
-  );
-};
+  )
+}
 
-export default AppRoutes;
+export default AppRoutes

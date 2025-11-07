@@ -1,19 +1,19 @@
-import { MdPerson, MdCalendarToday, MdWarning } from "react-icons/md";
-import { AiOutlineFileText } from "react-icons/ai";
-import { useRef, forwardRef, useImperativeHandle } from "react";
+import { MdPerson, MdCalendarToday, MdWarning } from 'react-icons/md'
+import { AiOutlineFileText } from 'react-icons/ai'
+import { useRef, forwardRef, useImperativeHandle } from 'react'
 
 const ResultModal = forwardRef(({ patient, onClose }, ref) => {
-  const dialogRef = useRef(null);
+  const dialogRef = useRef(null)
 
   useImperativeHandle(ref, () => ({
     open: () => dialogRef.current?.showModal(),
     close: () => dialogRef.current?.close(),
-  }));
+  }))
 
   const handleClose = () => {
-    dialogRef.current?.close();
-    onClose?.();
-  };
+    dialogRef.current?.close()
+    onClose?.()
+  }
 
   return (
     <dialog ref={dialogRef} className="modal">
@@ -142,7 +142,7 @@ const ResultModal = forwardRef(({ patient, onClose }, ref) => {
         </div>
       </div>
     </dialog>
-  );
-});
+  )
+})
 
-export default ResultModal;
+export default ResultModal

@@ -1,29 +1,29 @@
-import Sidebar from "../../components/navigations/Sidebar";
-import { FaUpload } from "react-icons/fa";
-import { FaUserInjured } from "react-icons/fa";
-import { LuScanEye } from "react-icons/lu";
-import { useState } from "react";
-import InputField from "../../components/commons/InputField";
-import { addPatientInputs } from "../../lib/addPatientInputs";
+import Sidebar from '../../components/navigations/Sidebar'
+import { FaUpload } from 'react-icons/fa'
+import { FaUserInjured } from 'react-icons/fa'
+import { LuScanEye } from 'react-icons/lu'
+import { useState } from 'react'
+import InputField from '../../components/commons/InputField'
+import { addPatientInputs } from '../../lib/addPatientInputs'
 
 const AddPatient = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    age: "",
-    sex: "",
-    isDiabetic: "",
-    familyDiabetic: "",
-    familyStroke: "",
-    lifestyleFactors: "",
-  });
+    fullName: '',
+    age: '',
+    sex: '',
+    isDiabetic: '',
+    familyDiabetic: '',
+    familyStroke: '',
+    lifestyleFactors: '',
+  })
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
+    const { id, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [id]: value,
-    }));
-  };
+    }))
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -96,7 +96,7 @@ const AddPatient = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default AddPatient;
+export default AddPatient

@@ -1,4 +1,4 @@
-import { cards } from "../../../lib/dashboardCardData";
+import { cards } from '../../../lib/dashboardCardData'
 
 // Dashboard card component
 const DashCard = () => {
@@ -7,7 +7,7 @@ const DashCard = () => {
       {/* Render each card */}
       {cards.map((card) => {
         // Get the icon component
-        const Icon = card.icon;
+        const Icon = card.icon
         return (
           <div key={card.id} className="card shadow-md bg-white rounded-lg">
             <div className="card-body">
@@ -15,24 +15,24 @@ const DashCard = () => {
                 {card.title}
                 {Icon && (
                   <Icon
-                    size={17}
+                    size={20}
                     className={
-                      card.title === "High Risk Cases"
-                        ? "text-red-500"
-                        : card.title === "Success Rate"
-                        ? "text-green-600"
-                        : "text-gray-600"
+                      card.title === 'High Risk Patients'
+                        ? 'text-red-500'
+                        : card.title === 'Patients Under Monitoring'
+                          ? 'text-yellow-600'
+                          : 'text-gray-600'
                     }
                   />
                 )}
               </h2>
               <p
                 className={`text-2xl font-extrabold ${
-                  card.title === "High Risk Cases"
-                    ? "text-red-500"
-                    : card.title === "Success Rate"
-                    ? "text-green-600"
-                    : "text-black"
+                  card.title === 'High Risk Patients'
+                    ? 'text-red-500'
+                    : card.title === 'Patients Under Monitoring'
+                      ? 'text-yellow-600'
+                      : 'text-black'
                 }`}
               >
                 {card.count}
@@ -42,10 +42,10 @@ const DashCard = () => {
               </p>
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
-export default DashCard;
+export default DashCard

@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef } from 'react'
 
 // Modal component using forwardRef to allow parent components to control its visibility
 const Modal = forwardRef(
@@ -18,8 +18,8 @@ const Modal = forwardRef(
             <button
               className={`btn ${color} text-white`}
               onClick={() => {
-                onConfirm?.();
-                ref?.current?.close();
+                onConfirm?.()
+                ref?.current?.close()
               }}
             >
               {confirmLabel}
@@ -27,8 +27,8 @@ const Modal = forwardRef(
           </div>
         </div>
       </dialog>
-    );
+    )
   }
-);
+)
 
-export default Modal;
+export default Modal

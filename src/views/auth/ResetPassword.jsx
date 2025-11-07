@@ -1,62 +1,62 @@
-import { useAuthStore } from "../../stores/authStore";
-import { useState, useEffect } from "react";
-import { supabase } from "../../api/supabaseClient";
-import { useNavigate } from "react-router";
+import { useAuthStore } from '../../stores/useAuthStore'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../api/supabaseClient'
+import { useNavigate } from 'react-router'
 
 const ResetPassword = () => {
-  const { user } = useAuthStore(); // Access the authenticated user from the store
-  const navigate = useNavigate(); // Hook for navigation
-  const [newPassword, setNewPassword] = useState(""); //  State for new password
-  const [confirmPassword, setConfirmPassword] = useState(""); // State for confirm password
-  const [message, setMessage] = useState(""); // State for success message
-  const [error, setError] = useState(""); // State for error message
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const { user } = useAuthStore() // Access the authenticated user from the store
+  const navigate = useNavigate() // Hook for navigation
+  const [newPassword, setNewPassword] = useState('') //  State for new password
+  const [confirmPassword, setConfirmPassword] = useState('') // State for confirm password
+  const [message, setMessage] = useState('') // State for success message
+  const [error, setError] = useState('') // State for error message
+  const [loading, setLoading] = useState(false) // State for loading indicator
 
   // On component mount, check for access_token in URL and set session
   useEffect(() => {
     // Parse URL to get access_token
-    const url = new URL(window.location.href);
-    const accessToken = url.searchParams.get("access_token");
+    const url = new URL(window.location.href)
+    const accessToken = url.searchParams.get('access_token')
     // If access_token exists, set the Supabase session
     if (accessToken) {
       supabase.auth.setSession({ access_token: accessToken }).catch((err) => {
-        console.error("Failed to set session from token:", err);
-      });
+        console.error('Failed to set session from token:', err)
+      })
     }
-  }, []);
+  }, [])
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
+    e.preventDefault()
+    setMessage('')
+    setError('')
     // Ensure user is authenticated
     if (!user) {
       setError(
-        "Your session has expired or is invalid. Please request a new password reset."
-      );
-      return;
+        'Your session has expired or is invalid. Please request a new password reset.'
+      )
+      return
     }
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+      setError('Passwords do not match.')
+      return
     }
-    setLoading(true);
+    setLoading(true)
     // Update password using Supabase
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
-    });
-    setLoading(false);
+    })
+    setLoading(false)
     if (error) {
-      setError(error.message);
+      setError(error.message)
     } else {
-      setMessage("Password updated successfully! Redirecting to login...");
+      setMessage('Password updated successfully! Redirecting to login...')
       setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+        navigate('/login')
+      }, 2000)
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center">
@@ -104,7 +104,7 @@ const ResetPassword = () => {
               disabled={loading}
               className="w-full bg-blue-500 text-white rounded-md py-2 hover:bg-blue-600 disabled:opacity-50"
             >
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? 'Updating...' : 'Update Password'}
             </button>
           </fieldset>
         </form>
@@ -112,7 +112,7 @@ const ResetPassword = () => {
         {error && <p className="text-red-600 text-sm mt-4">{error}</p>}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ResetPassword;
+export default ResetPassword

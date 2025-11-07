@@ -1,14 +1,14 @@
-import { useAuthStore } from "../../stores/authStore";
+import { useAuthStore } from '../../stores/useAuthStore'
 
 const ProfileDetailsForm = ({ formValues, setFormValues }) => {
   // Get current user ID from auth store
-  const user = useAuthStore((state) => state.user);
-  
+  const user = useAuthStore((state) => state.user)
+
   // Handle input changes
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormValues(prev => ({ ...prev, [id]: value }));
-  };
+    const { id, value } = e.target
+    setFormValues((prev) => ({ ...prev, [id]: value }))
+  }
 
   return (
     <div className="lg:col-span-2 space-y-6">
@@ -139,6 +139,6 @@ const ProfileDetailsForm = ({ formValues, setFormValues }) => {
         </div>
       </div>
     </div>
-  );
-};
-export default ProfileDetailsForm;
+  )
+}
+export default ProfileDetailsForm

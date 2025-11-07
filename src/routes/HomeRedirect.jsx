@@ -1,37 +1,37 @@
-import { redirectByRole } from "../utils/redirectByRole";
-import { useNavigate } from "react-router";
-import { useAuthStore } from "../stores/authStore";
-import { useEffect, useState } from "react";
+import { redirectByRole } from '../utils/redirectByRole'
+import { useNavigate } from 'react-router'
+import { useAuthStore } from '../stores/useAuthStore'
+import { useEffect, useState } from 'react'
 
 const HomeRedirect = () => {
-  const { user, isLoading } = useAuthStore(); // Access user and loading state from the auth store
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const { user, isLoading } = useAuthStore() // Access user and loading state from the auth store
+  const navigate = useNavigate() // Hook for programmatic navigation
   const [loadingMessage, setLoadingMessage] = useState(
     // Initial loading message
-    "Checking your session..."
-  );
+    'Checking your session...'
+  )
 
   // Update loading message dynamically
   useEffect(() => {
     if (isLoading) {
-      setLoadingMessage("Checking your session...");
+      setLoadingMessage('Checking your session...')
     } else if (!user) {
-      setLoadingMessage("Redirecting to login...");
+      setLoadingMessage('Redirecting to login...')
     } else if (user) {
-      setLoadingMessage("Redirecting to your dashboard...");
+      setLoadingMessage('Redirecting to your dashboard...')
     }
-  }, [isLoading, user]);
+  }, [isLoading, user])
 
   // Redirects *after* render
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        navigate("/login");
+        navigate('/login')
       } else {
-        redirectByRole(navigate);
+        redirectByRole(navigate)
       }
     }
-  }, [isLoading, user, navigate]);
+  }, [isLoading, user, navigate])
 
   // Show loading spinner and message while checking authentication status
   if (isLoading)
@@ -42,10 +42,10 @@ const HomeRedirect = () => {
           <p className="text-gray-700 text-lg font-medium">{loadingMessage}</p>
         </div>
       </div>
-    );
+    )
 
   // Render nothing while redirecting
-  return null;
-};
+  return null
+}
 
-export default HomeRedirect;
+export default HomeRedirect

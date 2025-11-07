@@ -1,14 +1,14 @@
-import ResultModal from "../../../components/commons/ResultModal";
-import { riskLevelStyles } from "../../../utils/riskLevelStyles";
-import { useRef, useState } from "react";
-import { patients } from "../../../lib/data";
+import ResultModal from '../../../components/commons/ResultModal'
+import { riskLevelStyles } from '../../../utils/riskLevelStyles'
+import { useRef, useState } from 'react'
+import { patients } from '../../../lib/data'
 
 // Component to display recent patient activities
 const PatientActivity = () => {
   // State to manage the selected patient for the modal
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState(null)
   // Ref for the ResultModal component
-  const modalRef = useRef(null);
+  const modalRef = useRef(null)
 
   return (
     <div className="bg-white p-4 sm:p-6 mt-8 rounded-lg shadow-md">
@@ -60,8 +60,8 @@ const PatientActivity = () => {
                     <button
                       className="btn btn-sm border-none"
                       onClick={() => {
-                        setSelectedPatient(patient);
-                        modalRef.current?.open();
+                        setSelectedPatient(patient)
+                        modalRef.current?.open()
                       }}
                     >
                       View Report
@@ -80,7 +80,7 @@ const PatientActivity = () => {
         onClose={() => {}}
       />
     </div>
-  );
-};
+  )
+}
 
-export default PatientActivity;
+export default PatientActivity

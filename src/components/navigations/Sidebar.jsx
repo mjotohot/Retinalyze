@@ -1,46 +1,46 @@
-import { useAuthStore } from "../../stores/authStore";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation, NavLink } from "react-router";
-import { FiMenu, FiX } from "react-icons/fi";
-import { RiLogoutCircleLine } from "react-icons/ri";
-import Modal from "../commons/Modal";
-import UserInfo from "./UserInfo";
+import { useAuthStore } from '../../stores/useAuthStore'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate, useLocation, NavLink } from 'react-router'
+import { FiMenu, FiX } from 'react-icons/fi'
+import { RiLogoutCircleLine } from 'react-icons/ri'
+import Modal from '../commons/Modal'
+import UserInfo from './UserInfo'
 import {
   adminNavItems,
   doctorsNavItems,
   patientsNavItems,
-} from "../../lib/sidebarNavigations";
+} from '../../lib/sidebarNavigations'
 
 const Sidebar = () => {
-  const logout = useAuthStore((state) => state.logout); // Access the logout function from the store
-  const { userRole } = useAuthStore(); // Access the userRole from the store
-  const modalRef = useRef(null); // Ref for the modal
-  const navigate = useNavigate(); // Hook for navigation
-  const location = useLocation(); // Hook for location
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility on mobile
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev); // Function to toggle sidebar
+  const logout = useAuthStore((state) => state.logout) // Access the logout function from the store
+  const { userRole } = useAuthStore() // Access the userRole from the store
+  const modalRef = useRef(null) // Ref for the modal
+  const navigate = useNavigate() // Hook for navigation
+  const location = useLocation() // Hook for location
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // State to manage sidebar visibility on mobile
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev) // Function to toggle sidebar
   const navItems = // Determine navigation items based on user role
-    userRole === "super_admin"
+    userRole === 'super_admin'
       ? adminNavItems
-      : userRole === "doctor"
-      ? doctorsNavItems
-      : patientsNavItems;
+      : userRole === 'doctor'
+        ? doctorsNavItems
+        : patientsNavItems
 
   // Close sidebar on route change (for mobile)
   useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
+    setIsSidebarOpen(false)
+  }, [location.pathname])
 
   // Handle logout confirmation
   const handleLogoutConfirm = async () => {
     try {
-      await logout();
-      if (modalRef.current?.open) modalRef.current.close();
-      navigate("/login");
+      await logout()
+      if (modalRef.current?.open) modalRef.current.close()
+      navigate('/login')
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout failed:', error)
     }
-  };
+  }
 
   return (
     <aside className="flex flex-col md:flex-row max-h-screen lg:fixed lg:h-screen overflow-y-auto">
@@ -70,7 +70,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <div
         className={`fixed md:static flex flex-col h-screen bg-white shadow-4xl w-64 z-40 transform transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } top-0 left-0 md:translate-x-0 md:w-64`}
       >
         <div className="flex items-center justify-center gap-3 mt-5 px-4">
@@ -98,7 +98,7 @@ const Sidebar = () => {
                   to={path}
                   className={({ isActive }) =>
                     `flex items-center px-4 py-2.5 font-semibold rounded-lg ${
-                      isActive ? "bg-blue-500 text-white" : "hover:bg-gray-100"
+                      isActive ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                     }`
                   }
                 >
@@ -112,7 +112,7 @@ const Sidebar = () => {
                 className="flex items-center px-4 font-semibold py-2.5 cursor-pointer hover:bg-gray-100 hover:rounded-lg"
                 onClick={() => {
                   if (modalRef.current && !modalRef.current.open) {
-                    modalRef.current.showModal();
+                    modalRef.current.showModal()
                   }
                 }}
               >
@@ -135,7 +135,7 @@ const Sidebar = () => {
         onConfirm={handleLogoutConfirm}
       />
     </aside>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

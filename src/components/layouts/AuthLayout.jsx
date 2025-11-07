@@ -1,14 +1,13 @@
-import bgImage from "../../assets/images/background-image.jpg";
-import { Outlet } from "react-router";
+import bgImage from '../../assets/images/background-image.jpg'
+import { Outlet } from 'react-router'
 
-// Layout for authentication pages (Login, Forgot Password, Reset Password)
 const AuthLayout = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-2"
       style={{
         backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
+        backgroundSize: 'cover',
       }}
     >
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -42,14 +41,13 @@ const AuthLayout = () => {
             </div>
           </div>
 
-          {/* (auth form goes here) */}
           <div className="p-6 lg:p-12 flex flex-col justify-center">
-            <Outlet /> {/* Login / Forgot / Reset renders here */}
+            <Outlet />
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AuthLayout;
+export default AuthLayout

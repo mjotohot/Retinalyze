@@ -1,27 +1,26 @@
-import Sidebar from "../../components/navigations/Sidebar";
-import { CiSearch } from "react-icons/ci";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { FaRegEdit } from "react-icons/fa";
-import { IoEyeOutline } from "react-icons/io5";
-import ResultModal from "../../components/commons/ResultModal";
-import { useState, useRef } from "react";
-import { riskLevelStyles } from "../../utils/riskLevelStyles";
-import { patients } from "../../lib/data";
+import Sidebar from '../../components/navigations/Sidebar'
+import { CiSearch } from 'react-icons/ci'
+import { FaRegTrashCan } from 'react-icons/fa6'
+import { IoEyeOutline } from 'react-icons/io5'
+import ResultModal from '../../components/commons/ResultModal'
+import { useState, useRef } from 'react'
+import { riskLevelStyles } from '../../utils/riskLevelStyles'
+import { patients } from '../../lib/data'
 
 const PatientList = () => {
-  const modalRef = useRef();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [riskFilter, setRiskFilter] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const modalRef = useRef()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [riskFilter, setRiskFilter] = useState('')
+  const [selectedPatient, setSelectedPatient] = useState(null)
 
   const filteredPatients = patients.filter((p) => {
-    const search = searchTerm.toLowerCase();
+    const search = searchTerm.toLowerCase()
     const matchesNameOrAge =
       p.patient.toLowerCase().includes(search) ||
-      p.age.toString().includes(search);
-    const matchesRisk = riskFilter === "" || p.riskLevel === riskFilter;
-    return matchesNameOrAge && matchesRisk;
-  });
+      p.age.toString().includes(search)
+    const matchesRisk = riskFilter === '' || p.riskLevel === riskFilter
+    return matchesNameOrAge && matchesRisk
+  })
 
   return (
     <>
@@ -101,14 +100,11 @@ const PatientList = () => {
                         <button
                           className="btn btn-ghost hover:bg-white border-none shadow-none btn-xs"
                           onClick={() => {
-                            setSelectedPatient(patient);
-                            modalRef.current?.open();
+                            setSelectedPatient(patient)
+                            modalRef.current?.open()
                           }}
                         >
                           <IoEyeOutline size={18} />
-                        </button>
-                        <button className="btn btn-ghost hover:bg-white border-none shadow-none btn-xs">
-                          <FaRegEdit size={16} />
                         </button>
                         <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
                           <FaRegTrashCan size={14} />
@@ -131,7 +127,7 @@ const PatientList = () => {
         onClose={() => {}}
       />
     </>
-  );
-};
+  )
+}
 
-export default PatientList;
+export default PatientList

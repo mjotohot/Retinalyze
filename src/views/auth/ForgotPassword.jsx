@@ -1,31 +1,31 @@
-import { useState } from "react";
-import { supabase } from "../../api/supabaseClient";
-import { Link } from "react-router";
+import { useState } from 'react'
+import { supabase } from '../../api/supabaseClient'
+import { Link } from 'react-router'
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState(""); // State for email input
-  const [message, setMessage] = useState(""); // State for success message
-  const [error, setError] = useState(""); // State for error message
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [email, setEmail] = useState('') // State for email input
+  const [message, setMessage] = useState('') // State for success message
+  const [error, setError] = useState('') // State for error message
+  const [loading, setLoading] = useState(false) // State for loading indicator
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-    setLoading(true);
+    e.preventDefault()
+    setMessage('')
+    setError('')
+    setLoading(true)
     // Request password reset via Supabase
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       // environment variable for base URL
       redirectTo: `${import.meta.env.VITE_APP_BASE_URL}/auth/reset-password`,
-    });
-    setLoading(false);
+    })
+    setLoading(false)
     if (error) {
-      setError(error.message);
+      setError(error.message)
     } else {
-      setMessage("Password reset link sent! Please check your email.");
+      setMessage('Password reset link sent! Please check your email.')
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center">
@@ -58,7 +58,7 @@ const ForgotPassword = () => {
             disabled={loading}
             className="w-full cursor-pointer tracking-tight bg-blue-500 text-white rounded-md py-2 hover:bg-blue-600 disabled:opacity-50"
           >
-            {loading ? "Sending..." : "Send Reset Link"}
+            {loading ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
 
@@ -75,7 +75,7 @@ const ForgotPassword = () => {
         {error && <p className="text-red-600 text-sm mt-4">{error}</p>}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ForgotPassword;
+export default ForgotPassword

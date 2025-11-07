@@ -1,17 +1,16 @@
-import AppRoutes from "./routes/AppRoutes";
-import { useAuthStore } from "./stores/authStore";
-import { useEffect } from "react";
+import AppRoutes from './routes/AppRoutes'
+import { useAuthStore } from './stores/useAuthStore'
+import { useEffect } from 'react'
 
-// Main application component
 const App = () => {
-  // Access the initialize function from the auth store
-  const initialize = useAuthStore((state) => state.initialize);
+  // initialize the auth store when the app first loads
+  const initialize = useAuthStore((state) => state.initialize)
 
-  // Initialize authentication state on app load
   useEffect(() => {
-    initialize();
-  }, [initialize]);
-  return <AppRoutes />;
-};
+    initialize()
+  }, [initialize])
 
-export default App;
+  return <AppRoutes />
+}
+
+export default App

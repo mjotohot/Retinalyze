@@ -1,18 +1,18 @@
-import { useAuthStore } from "../stores/authStore";
+import { useAuthStore } from '../stores/useAuthStore'
 
 // Redirect users based on their roles
 export const redirectByRole = (navigate) => {
   // Get role-checking functions from the auth store
-  const { isSuperAdmin, isDoctor, isPatient } = useAuthStore.getState();
+  const { isSuperAdmin, isDoctor, isPatient } = useAuthStore.getState()
 
   // Redirect based on role
   if (isSuperAdmin()) {
-    navigate("/admin/dashboard");
+    navigate('/admin/dashboard')
   } else if (isDoctor()) {
-    navigate("/dashboard");
+    navigate('/dashboard')
   } else if (isPatient()) {
-    navigate("/user");
+    navigate('/user')
   } else {
-    navigate("/");
+    navigate('/')
   }
-};
+}
