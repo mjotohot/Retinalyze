@@ -7,7 +7,7 @@ import DashboardHeader from './DashboardHeaders'
 
 // Dashboard component with role-based rendering
 const Dashboard = () => {
-  const { profile, userRole, isLoading } = useAuthStore() // Access from auth store
+  const { profile, userRole, isLoading } = useAuthStore()
 
   // Handle loading and no role scenarios
   if (isLoading) return <p>Loading dashboard...</p>

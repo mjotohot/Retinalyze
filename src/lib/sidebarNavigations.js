@@ -15,6 +15,11 @@ export const adminNavItems = [
     path: '/admin/add',
     icon: MdGroupAdd,
   },
+  {
+    label: 'Doctors',
+    path: '/admin/doctors',
+    icon: FaUserDoctor,
+  },
 ]
 
 // sidebar navigation items for doctor role

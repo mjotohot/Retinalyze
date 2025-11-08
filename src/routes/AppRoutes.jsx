@@ -10,6 +10,7 @@ import PatientList from '../views/patient/PatientList'
 import AddPatient from '../views/patient/AddPatient'
 import Profile from '../views/profile/Profile'
 import AddDoctor from '../views/admin/AddDoctor'
+import AllDoctors from '../views/admin/AllDoctors'
 
 const AppRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
       <Route path="/admin" element={<ProtectedRoute />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="add" element={<AddDoctor />} />
+        <Route path="doctors" element={<AllDoctors />} />
       </Route>
 
       {/* Protected routes for Doctor */}

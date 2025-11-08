@@ -20,6 +20,7 @@ const InputField = ({
       {type === 'select' ? (
         <select
           id={id}
+          name={id}
           value={value}
           onChange={onChange}
           className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -36,6 +37,7 @@ const InputField = ({
       ) : (
         <input
           id={id}
+          name={id}
           type={type}
           placeholder={placeholder}
           value={value}

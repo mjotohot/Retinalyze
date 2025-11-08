@@ -3,7 +3,7 @@ import { FaEdit } from 'react-icons/fa'
 import ProfileSidebarCard from './ProfileSidebarCard'
 import ProfileDetailsForm from './ProfileDetailsForm'
 import { useUpdateDoctorData } from '../../hooks/useUpdateDoctor'
-import { useFetchDoctorData } from '../../hooks/useFetchDoctor'
+import { useFetchDoctorById } from '../../hooks/useFetchDoctorById'
 import { useAuthStore } from '../../stores/useAuthStore'
 import { useState, useEffect } from 'react'
 
@@ -14,7 +14,7 @@ const Profile = () => {
   const userId = user?.id
 
   // Initialize the mutation hooks
-  const doctorQuery = useFetchDoctorData(userId)
+  const doctorQuery = useFetchDoctorById(userId)
   const editDoctorMutation = useUpdateDoctorData(userId)
 
   // Local state for form values
@@ -43,11 +43,9 @@ const Profile = () => {
   useEffect(() => {
     // run whenever profile OR doctorQuery.data changes
     if (!profile && !doctorQuery.data) return
-
     // merge profile and doctor data
     const prof = profile ?? {}
     const doc = doctorQuery.data ?? {}
-
     // set form values
     const data = {
       full_name: prof.full_name || '',
@@ -58,10 +56,8 @@ const Profile = () => {
       specialization: doc.specialization || '',
       years_experience: doc.years_experience || '',
     }
-
     // set form values
     setFormValues(data)
-
     // keep original snapshot
     setOriginalValues(data)
   }, [doctorQuery.data, profile])
@@ -73,7 +69,6 @@ const Profile = () => {
       full_name: formValues.full_name,
       phone_number: formValues.phone_number,
     }
-
     // Doctor-specific fields
     const doctorFields = {
       professional_title: formValues.professional_title,
@@ -82,7 +77,6 @@ const Profile = () => {
       specialization: formValues.specialization,
       years_experience: formValues.years_experience,
     }
-
     // Call the mutation
     editDoctorMutation.mutate(
       { profileFields, doctorFields },

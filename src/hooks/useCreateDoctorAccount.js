@@ -3,9 +3,11 @@ import { useMutation } from '@tanstack/react-query'
 
 // Custom hook to create a doctor account
 const createDoctorAccount = async (payload) => {
-  const data = await supabase.functions.invoke('addDoctorAccount', {
+  const { data, error } = await supabase.functions.invoke('addDoctorAccount', {
     body: JSON.stringify(payload),
   })
+
+  if (error) throw error
 
   return data
 }
@@ -13,14 +15,15 @@ const createDoctorAccount = async (payload) => {
 // Hook that uses React Query's useMutation to handle doctor account creation
 export const useCreateDoctorAccount = () => {
   return useMutation({
-    mutationFn: ({ email, password, doctorData }) => {
-      createDoctorAccount({ email, password, doctorData })
-    },
-    onError: (error) => {
-      console.error('Error creating doctor account:', error)
-    },
+    mutationFn: ({ email, password, doctorData }) =>
+      createDoctorAccount({ email, password, doctorData }),
+
     onSuccess: (data) => {
       console.log('Doctor account created successfully:', data)
+    },
+
+    onError: (error) => {
+      console.error('Error creating doctor account:', error)
     },
   })
 }

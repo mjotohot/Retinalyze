@@ -14,17 +14,28 @@ const AllPatients = () => {
   const [riskFilter, setRiskFilter] = useState('')
   const [selectedPatient, setSelectedPatient] = useState(null)
   // Fetch patient data using the custom hook
-  const { data, isLoading, fetchNextPage, hasNextPage } = useFetchPatientData()
+  const {
+    data: patients,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFetchPatientData()
 
   // Flatten the paginated data into a single array
-  const patients = data?.pages.flatMap((page) => page.data) ?? []
+  const patientData = patients?.pages.flatMap((page) => page.data) ?? []
 
   // Observe when the sentinel div (loadMoreRef) comes into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries
-        if (entry.isIntersecting && hasNextPage && !isLoading) {
+        if (
+          entry.isIntersecting &&
+          hasNextPage &&
+          !isLoading &&
+          !isFetchingNextPage
+        ) {
           fetchNextPage()
         }
       },
@@ -37,23 +48,33 @@ const AllPatients = () => {
     return () => {
       if (currentRef) observer.unobserve(currentRef)
     }
-  }, [hasNextPage, fetchNextPage, isLoading])
+  }, [hasNextPage, fetchNextPage, isLoading, isFetchingNextPage])
 
   // Filter patients based on search term and risk level
-  const filteredPatients = patients.filter((p) => {
-    const search = searchTerm.toLowerCase()
-    const matchesNameOrAge =
-      p.profile?.full_name?.toLowerCase().includes(search) ||
-      p.age?.toString().includes(search)
-    const matchesRisk = riskFilter === '' || p.riskLevel === riskFilter
-    return matchesNameOrAge && matchesRisk
-  })
+  // const filteredPatients = patients.filter((p) => {
+  //   const search = searchTerm.toLowerCase()
+  //   const matchesNameOrAge =
+  //     p.profile?.full_name?.toLowerCase().includes(search) ||
+  //     p.age?.toString().includes(search)
+  //   const matchesRisk = riskFilter === '' || p.riskLevel === riskFilter
+  //   return matchesNameOrAge && matchesRisk
+  // })
 
   return (
     <>
       <div className="overflow-x-auto p-6 bg-white mt-6 rounded-md shadow-md">
         {/* Filter and Search Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <label className="flex input items-center gap-2 border rounded-md border-none px-3 py-2 w-full sm:w-1/2">
+            <CiSearch className="opacity-50 text-lg" />
+            <input
+              type="search"
+              className="w-full outline-none"
+              placeholder="Search for a patient name. . ."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </label>
           <select
             className="select border-none rounded-md w-full sm:w-1/3"
             value={riskFilter}
@@ -64,17 +85,6 @@ const AllPatients = () => {
             <option value="Moderate">Moderate</option>
             <option value="Low">Low Risk</option>
           </select>
-
-          <label className="flex input items-center gap-2 border rounded-md border-none px-3 py-2 w-full sm:w-1/2">
-            <CiSearch className="opacity-50 text-lg" />
-            <input
-              type="search"
-              className="w-full outline-none"
-              placeholder="Search name or age"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </label>
         </div>
 
         {/* Patients Table */}
@@ -91,26 +101,32 @@ const AllPatients = () => {
           </thead>
           <tbody>
             {/* Initial loading state */}
-            {isLoading && patients.length === 0 && (
+            {isLoading && patientData.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td
+                  colSpan="6"
+                  className="text-center py-6 text-gray-400 italic"
+                >
                   Loading patients...
                 </td>
               </tr>
             )}
 
-            {/* Empty state */}
-            {!isLoading && filteredPatients.length === 0 && (
+            {/* if no data response */}
+            {!isLoading && patientData.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
-                  No patients found
+                <td
+                  colSpan="6"
+                  className="text-center py-6 text-gray-400 italic"
+                >
+                  No patients found.
                 </td>
               </tr>
             )}
 
             {/* Data rows */}
             {!isLoading &&
-              filteredPatients.map((patient) => (
+              patientData.map((patient) => (
                 <tr key={patient.id}>
                   <td>
                     <div className="flex items-center gap-3">
@@ -176,14 +192,21 @@ const AllPatients = () => {
         <div ref={loadMoreRef} className="h-6"></div>
 
         {/* Loading indicator for infinite scroll */}
-        {isLoading && (
-          <p className="text-center text-sm text-gray-500 flex justify-center">
+        {isFetchingNextPage && (
+          <p className="text-center text-sm text-gray-400 flex justify-center italic">
             Loading more...
           </p>
         )}
 
+        {/* No more data indicator */}
+        {!hasNextPage && patientData.length > 0 && (
+          <p className="text-center text-xs text-gray-400 mt-2 italic">
+            No more data to load
+          </p>
+        )}
+
         {/* Hint for horizontal scrolling on small screens */}
-        <div className="text-xs text-gray-500 mt-2 sm:hidden">
+        <div className="text-xs text-gray-400 mt-2 sm:hidden italic">
           Scroll horizontally to view full table →
         </div>
       </div>
