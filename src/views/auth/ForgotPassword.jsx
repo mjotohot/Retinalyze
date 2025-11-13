@@ -17,7 +17,7 @@ const ForgotPassword = () => {
     // Request password reset via Supabase
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       // environment variable for base URL
-      redirectTo: `${import.meta.env.VITE_APP_BASE_URL}/auth/reset-password`,
+      redirectTo: `${import.meta.env.VITE_APP_BASE_URL}/reset-password`,
     })
     setLoading(false)
     if (error) {
