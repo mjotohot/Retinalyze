@@ -1,21 +1,24 @@
 export const addPatientInputs = [
   {
-    label: 'Email Address',
+    label: 'Email',
     id: 'email',
     type: 'email',
     placeholder: 'sample@gmail.com',
+    required: true,
   },
   {
     label: 'Name',
-    id: 'name',
+    id: 'full_name',
     type: 'text',
     placeholder: "Enter patient's name",
+    required: true,
   },
   {
     label: 'Age',
     id: 'age',
     type: 'number',
     placeholder: "Enter patient's age",
+    required: true,
   },
   {
     label: 'Sex',
@@ -24,44 +27,73 @@ export const addPatientInputs = [
     options: [
       { value: 'male', label: 'Male' },
       { value: 'female', label: 'Female' },
-      { value: 'other', label: 'Other' },
     ],
     placeholder: 'Select sex',
+    required: true,
   },
   {
-    label: 'Is Diabetic?',
-    id: 'isDiabetic',
-    type: 'select',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-    ],
-    placeholder: 'Select option',
+    label: 'Phone',
+    id: 'phone_number',
+    type: 'number',
+    placeholder: 'e.g. 09xxxxxxxxx',
+    required: true,
   },
   {
-    label: 'Family History of Diabetes?',
-    id: 'familyDiabetic',
-    type: 'select',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-    ],
-    placeholder: 'Select option',
-  },
-  {
-    label: 'Family History of Stroke?',
-    id: 'familyStroke',
-    type: 'select',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-    ],
-    placeholder: 'Select option',
-  },
-  {
-    label: 'Lifestyle Factors',
-    id: 'lifestyleFactors',
+    label: 'Address',
+    id: 'address',
     type: 'text',
-    placeholder: 'e.g., smoking, exercise habits',
+    placeholder: "Enter patient's address",
+  },
+  {
+    label: 'Diabetic?',
+    id: 'diabetic',
+    type: 'select',
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+    placeholder: 'Select option',
+  },
+  {
+    label: 'Smoking?',
+    id: 'smoking',
+    type: 'select',
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+    placeholder: 'Select option',
+  },
+  {
+    label: 'Hypertensive?',
+    id: 'hypertension',
+    type: 'select',
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+    placeholder: 'Select option',
+  },
+  {
+    label: 'Stroke History',
+    id: 'stroke_history',
+    type: 'select',
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+    placeholder: 'Select option',
+  },
+  {
+    label: 'BP Systolic',
+    id: 'bp_systolic',
+    type: 'number',
+    placeholder: 'Enter here',
+  },
+  {
+    label: 'BP Diastolic',
+    id: 'bp_diastolic',
+    type: 'number',
+    placeholder: 'Enter here',
   },
 ]

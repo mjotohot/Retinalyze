@@ -10,7 +10,7 @@ export const cards = [
     title: 'Total Patients',
     icon: HiMiniUsers,
     count: 58,
-    detail: '+2 from last week',
+    detail: 'Registered in the system',
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ export const cards = [
     title: 'This Week',
     icon: IoCalendarNumberSharp,
     count: 23,
-    detail: 'Analysis completed',
+    detail: 'Newly registered patients',
   },
   {
     id: 4,

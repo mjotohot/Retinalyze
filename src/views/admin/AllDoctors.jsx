@@ -2,9 +2,14 @@ import Sidebar from '../../components/navigations/Sidebar'
 import { FaTrash } from 'react-icons/fa6'
 import { CiSearch } from 'react-icons/ci'
 import { useFetchDoctor } from '../../hooks/useFetchDoctor'
-import { useEffect, useRef, useState } from 'react'
+import { searchDoctor } from '../../services/fetchDoctor'
+import { useSearch } from '../../hooks/useSearch'
+import { useEffect, useRef } from 'react'
 
 const AllDoctors = () => {
+  //
+  const loadMoreRef = useRef(null)
+
   // Fetch patient data using the custom hook
   const {
     data: doctors,
@@ -13,11 +18,18 @@ const AllDoctors = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useFetchDoctor()
-  const loadMoreRef = useRef(null)
-  const [searchTerm, setSearchTerm] = useState('')
+
+  //
+  const { search, setSearch, results, isFetching, error } = useSearch({
+    searchFn: searchDoctor,
+    delay: 400,
+  })
 
   // Flatten the paginated data into a single array
   const docData = doctors?.pages.flatMap((page) => page.data) ?? []
+
+  //
+  const displayedData = search ? results : docData
 
   // Observe when the sentinel div (loadMoreRef) comes into view
   useEffect(() => {
@@ -67,8 +79,8 @@ const AllDoctors = () => {
                 type="search"
                 className="w-full outline-none"
                 placeholder="Search for a doctor name. . ."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </label>
 
@@ -93,7 +105,7 @@ const AllDoctors = () => {
                       colSpan="8"
                       className="py-6 text-gray-400 text-center italic"
                     >
-                      Loading patients...
+                      Loading doctors...
                     </td>
                   </tr>
                 )}
@@ -102,17 +114,41 @@ const AllDoctors = () => {
                 {!isLoading && docData.length === 0 && (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="8"
                       className="text-center py-6 text-gray-400 italic"
                     >
-                      No patients found.
+                      No doctors found.
+                    </td>
+                  </tr>
+                )}
+
+                {/* if searching doctors */}
+                {isFetching && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-400 italic"
+                    >
+                      Searching result...
+                    </td>
+                  </tr>
+                )}
+
+                {/* if no doctors found */}
+                {!isFetching && !error && search && results.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-400 italic"
+                    >
+                      No doctors found
                     </td>
                   </tr>
                 )}
 
                 {/* Data rows */}
                 {!isLoading &&
-                  docData?.map((doctor) => (
+                  displayedData?.map((doctor) => (
                     <tr key={doctor.id}>
                       <td>
                         <div className="flex items-center gap-3">
@@ -171,7 +207,7 @@ const AllDoctors = () => {
             )}
 
             {/* No more data indicator */}
-            {!hasNextPage && docData.length > 0 && (
+            {!search && !hasNextPage && docData.length > 0 && (
               <p className="text-center text-xs text-gray-400 mt-2 italic">
                 No more data to load
               </p>

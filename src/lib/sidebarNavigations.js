@@ -35,7 +35,7 @@ export const doctorsNavItems = [
     icon: MdGroupAdd,
   },
   {
-    label: 'Patient List',
+    label: 'Patients',
     path: '/patients',
     icon: FaUserInjured,
   },

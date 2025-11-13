@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Sidebar from '../../components/navigations/Sidebar'
 import { useCreateDoctorAccount } from '../../hooks/useCreateDoctorAccount'
 import InputField from '../../components/commons/InputField'
@@ -33,19 +33,15 @@ const AddDoctor = () => {
     message: '',
   })
 
-  // Initialize mutation hook
-  const {
-    mutateAsync: createDoctor,
-    isLoading,
-    reset,
-  } = useCreateDoctorAccount({
-    onSuccess: (data) => {
-      setModalData({
-        isOpen: true,
-        type: 'success',
-        message: data?.message || 'Doctor account created successfully.',
-      })
+  useEffect(() => {
+    if (modalData.isOpen) {
       modalRef.current?.showModal()
+    }
+  }, [modalData.isOpen])
+
+  // Initialize mutation hook
+  const { mutateAsync: createDoctor, isPending } = useCreateDoctorAccount({
+    onSuccess: (data) => {
       // reset form
       setFormData({
         email: '',
@@ -61,6 +57,12 @@ const AddDoctor = () => {
         professional_title: '',
         years_experience: '',
       })
+      setModalData({
+        isOpen: true,
+        type: 'success',
+        message: data?.message || 'Doctor account created successfully.',
+      })
+      modalRef.current?.showModal()
     },
     onError: (error) => {
       setModalData({
@@ -81,10 +83,13 @@ const AddDoctor = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // Destructure email and password from formData
-    const { email, password, ...doctorData } = formData
-    // Call the custom hook
-    await createDoctor({ email, password, doctorData })
+    try {
+      const { email, password, ...doctorData } = formData
+      await createDoctor({ email, password, doctorData })
+    } catch (error) {
+      console.error('Form submission error:', error)
+      // Error will be handled by onError callback
+    }
   }
 
   return (
@@ -139,10 +144,13 @@ const AddDoctor = () => {
                   <button
                     type="submit"
                     className="btn rounded-md border-none btn-neutral"
-                    disabled={isLoading}
+                    disabled={isPending}
                   >
-                    {isLoading ? (
-                      'Creating...'
+                    {isPending ? (
+                      <>
+                        <span className="loading loading-spinner loading-sm"></span>
+                        <span>Creating...</span>
+                      </>
                     ) : (
                       <>
                         <IoPersonAdd size={15} />
@@ -170,8 +178,8 @@ const AddDoctor = () => {
               : 'bg-red-500 hover:bg-red-600'
           }
           onConfirm={() => {
+            modalRef.current?.close()
             setModalData({ ...modalData, isOpen: false })
-            reset()
           }}
         />
       )}
