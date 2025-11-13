@@ -5,6 +5,9 @@ import { useAuthStore } from '../stores/useAuthStore'
 // Hook that uses React Query's useMutation to handle patient account creation
 export const useCreatePatientAccount = (options = {}) => {
   const profile = useAuthStore((state) => state.profile)
+  const account_id = useAuthStore((state) => state.account_id)
+  console.log("profile", profile)
+  console.log("account_id", account_id)
 
   return useMutation({
     mutationFn: async ({ email, patientData }) => {
@@ -16,7 +19,7 @@ export const useCreatePatientAccount = (options = {}) => {
         email,
         patientData: {
           ...patientData,
-          doctor_id: profile.id,
+          doctor_id: account_id.id,
           age: Number(patientData.age),
           bp_systolic: Number(patientData.bp_systolic),
           bp_diastolic: Number(patientData.bp_diastolic),
