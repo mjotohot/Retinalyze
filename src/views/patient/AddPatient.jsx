@@ -7,6 +7,7 @@ import InputField from '../../components/commons/InputField'
 import Modal from '../../components/commons/Modal'
 import { addPatientInputs } from '../../lib/addPatientInputs'
 import { useCreatePatientAccount } from '../../hooks/useCreatePatientAccount'
+import { useRetinalImagePrediction } from '../../hooks/useRetinalImagePrediction'
 
 const AddPatient = () => {
   // Ref for the modal
@@ -27,6 +28,10 @@ const AddPatient = () => {
     bp_diastolic: '',
   })
 
+  // State for retinal image
+  const [retinalImage, setRetinalImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+
   // Modal state
   const [modalData, setModalData] = useState({
     isOpen: false,
@@ -40,8 +45,18 @@ const AddPatient = () => {
     }
   }, [modalData.isOpen])
 
-  // Initialize mutation hook
-  const { mutateAsync: createPatient, isPending } = useCreatePatientAccount({
+  // Initialize retinal image prediction hook
+  const { mutateAsync: predictImage, isPending: isImagePredicting } = useRetinalImagePrediction({
+    onSuccess: (data) => {
+      console.log('Retinal image prediction result:', data)
+    },
+    onError: (error) => {
+      console.error('Image prediction error:', error)
+    }
+  })
+
+  // Initialize patient account creation hook
+  const { mutateAsync: createPatient, isPending: isCreatingPatient } = useCreatePatientAccount({
     onSuccess: (data) => {
       // reset form
       setFormData({
@@ -58,6 +73,8 @@ const AddPatient = () => {
         bp_systolic: '',
         bp_diastolic: '',
       })
+      setRetinalImage(null)
+      setImagePreview(null)
       setModalData({
         isOpen: true,
         type: 'success',
@@ -83,15 +100,52 @@ const AddPatient = () => {
     }))
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setRetinalImage(file)
+      
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
     try {
+      let imagePredictionResult = null;
+
+      // Step 1: Predict retinal image if uploaded
+      if (retinalImage) {
+        console.log('Starting retinal image prediction...')
+        imagePredictionResult = await predictImage(retinalImage)
+        console.log('Image prediction completed:', imagePredictionResult)
+        console.log('Image prediction label:', imagePredictionResult?.[0]?.label)
+      } else {
+        console.log('No retinal image uploaded, skipping image prediction')
+      }
+
+      // Step 2: Create patient account (this will run health prediction, upload image, and combine predictions)
+      console.log('Creating patient account with predictions...')
       const { email, ...patientData } = formData
-      await createPatient({ email, patientData })
+      await createPatient({ 
+        email, 
+        patientData,
+        imagePrediction: imagePredictionResult, // Pass image prediction to be combined
+        retinalImageFile: retinalImage // Pass the image file to be uploaded
+      })
+      
     } catch (error) {
       console.error('Form submission error:', error)
     }
   }
+
+  const isPending = isImagePredicting || isCreatingPatient
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -142,6 +196,30 @@ const AddPatient = () => {
                       </span>
                     </h2>
                   </div>
+                  
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="mb-4 flex justify-center">
+                      <div className="relative">
+                        <img 
+                          src={imagePreview} 
+                          alt="Retinal scan preview" 
+                          className="max-w-xs rounded-lg border-2 border-gray-300"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRetinalImage(null)
+                            setImagePreview(null)
+                          }}
+                          className="absolute top-2 right-2 btn btn-sm btn-circle btn-error"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                     <FaUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                     <p className="text-sm font-medium text-gray-900">
@@ -152,9 +230,11 @@ const AddPatient = () => {
                       type="file"
                       accept="image/*"
                       className="file-input file-input-bordered mt-4 w-full max-w-xs"
+                      onChange={handleImageChange}
                     />
                   </div>
                 </div>
+                
                 <div className="flex justify-center mt-5 mb-5">
                   <button
                     type="submit"
@@ -164,7 +244,9 @@ const AddPatient = () => {
                     {isPending ? (
                       <>
                         <span className="loading loading-spinner loading-sm"></span>
-                        <span>Creating...</span>
+                        <span>
+                          {isImagePredicting ? 'Analyzing Image...' : 'Creating...'}
+                        </span>
                       </>
                     ) : (
                       <>

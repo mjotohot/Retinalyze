@@ -172,7 +172,7 @@ const PatientList = () => {
                             <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
                               <img
                                 src={
-                                  patient.profile?.sex === 'Male'
+                                  patient.profile?.sex === '0'
                                     ? maleAvatar
                                     : femaleAvatar
                                 }
@@ -187,8 +187,12 @@ const PatientList = () => {
                       <td className="text-sm">
                         {patient.profile?.age || 'null'}
                       </td>
-                      <td className="text-sm">
-                        {patient.profile?.sex || 'null'}
+                     <td className="text-sm">
+                        {patient.profile?.sex === '0'
+                          ? 'Male'
+                          : patient.profile?.sex === '1'
+                            ? 'Female'
+                            : 'null'}
                       </td>
                       <td>
                         <span

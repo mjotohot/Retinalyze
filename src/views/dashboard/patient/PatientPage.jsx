@@ -38,7 +38,6 @@ const PatientPage = () => {
   // Analysis fields config
   const analysisFields = [
     { label: 'Risk Level', id: 'risk', value: patient.risk_level || 'Unknown' },
-    { label: 'Probability Range', id: 'probability', value: '78% - 92%' },
     {
       label: "Doctor's Recommendations",
       id: 'recommendations',
@@ -112,10 +111,10 @@ const PatientPage = () => {
               </div>
             </div>
             <div>
-              <h2 className="text-lg font-semibold mb-4">Retina Image</h2>
+              <h2 className="text-lg font-semibold mb-4">Retinal Image</h2>
               <div className="flex justify-center">
                 <img
-                  src={patient.retinalImage || 'https://placehold.co/600x400'}
+                  src={patient.retinal_img || 'https://placehold.co/600x400'}
                   alt="Retinal Scan"
                   className="max-w-full max-h-[400px] object-contain border rounded-md shadow"
                 />
