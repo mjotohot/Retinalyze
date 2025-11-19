@@ -11,6 +11,7 @@ import AddPatient from '../views/patient/AddPatient'
 import Profile from '../views/profile/Profile'
 import AddDoctor from '../views/admin/AddDoctor'
 import AllDoctors from '../views/admin/AllDoctors'
+import PatientPage from '../views/dashboard/patient/PatientPage'
 
 const AppRoutes = () => {
   return (
@@ -41,7 +42,9 @@ const AppRoutes = () => {
       </Route>
 
       {/* Protected routes for Patients */}
-      <Route path="/user" element={<ProtectedRoute />}></Route>
+      <Route element={<ProtectedRoute />}>
+        <Route path="/user" element={<PatientPage />} />
+      </Route>
     </Routes>
   )
 }

@@ -1,17 +1,21 @@
 import { CiSearch } from 'react-icons/ci'
-import { FaRegTrashCan } from 'react-icons/fa6'
-import { FaRegEdit } from 'react-icons/fa'
-import { IoEyeOutline } from 'react-icons/io5'
+import { FaTrash } from 'react-icons/fa6'
+import { IoMdEye } from 'react-icons/io'
 import ResultModal from '../../../components/commons/ResultModal'
 import { useState, useRef, useEffect } from 'react'
 import { riskLevelStyles } from '../../../utils/riskLevelStyles'
 import { useFetchPatientData } from '../../../hooks/useFetchPatient'
+import { useSearch } from '../../../hooks/useSearch'
+import { searchPatient } from '../../../services/fetchPatient'
+import { riskFilterOptions } from '../../../lib/riskFilterOptions'
+import SelectFilters from '../../../components/commons/SelectFilters'
+import maleAvatar from '../../../assets/images/male.jpg'
+import femaleAvatar from '../../../assets/images/female.jpg'
 
 const AllPatients = () => {
   const modalRef = useRef()
   const loadMoreRef = useRef(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [riskFilter, setRiskFilter] = useState('')
+  const [selectedRisk, setSelectedRisk] = useState('')
   const [selectedPatient, setSelectedPatient] = useState(null)
   // Fetch patient data using the custom hook
   const {
@@ -20,10 +24,19 @@ const AllPatients = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useFetchPatientData()
+  } = useFetchPatientData(selectedRisk)
+
+  //
+  const { search, setSearch, results, isFetching, error } = useSearch({
+    searchFn: searchPatient,
+    delay: 400,
+  })
 
   // Flatten the paginated data into a single array
   const patientData = patients?.pages.flatMap((page) => page.data) ?? []
+
+  //
+  const displayedData = search ? results : patientData
 
   // Observe when the sentinel div (loadMoreRef) comes into view
   useEffect(() => {
@@ -50,16 +63,6 @@ const AllPatients = () => {
     }
   }, [hasNextPage, fetchNextPage, isLoading, isFetchingNextPage])
 
-  // Filter patients based on search term and risk level
-  // const filteredPatients = patients.filter((p) => {
-  //   const search = searchTerm.toLowerCase()
-  //   const matchesNameOrAge =
-  //     p.profile?.full_name?.toLowerCase().includes(search) ||
-  //     p.age?.toString().includes(search)
-  //   const matchesRisk = riskFilter === '' || p.riskLevel === riskFilter
-  //   return matchesNameOrAge && matchesRisk
-  // })
-
   return (
     <>
       <div className="overflow-x-auto p-6 bg-white mt-6 rounded-md shadow-md">
@@ -71,40 +74,37 @@ const AllPatients = () => {
               type="search"
               className="w-full outline-none"
               placeholder="Search for a patient name. . ."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </label>
-          <select
-            className="select border-none rounded-md w-full sm:w-1/3"
-            value={riskFilter}
-            onChange={(e) => setRiskFilter(e.target.value)}
-          >
-            <option value="">All Risk Levels</option>
-            <option value="High">High Risk</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Low">Low Risk</option>
-          </select>
+          <SelectFilters
+            options={riskFilterOptions}
+            selectedValue={selectedRisk}
+            onChange={setSelectedRisk}
+          />
         </div>
 
         {/* Patients Table */}
         <table className="table table-sm">
           <thead>
-            <tr className="text-xs sm:text-sm">
+            <tr className="text-xs sm:text-sm tracking-wide">
               <th>Patient Name</th>
               <th>Age</th>
+              <th>Sex</th>
               <th>Risk Level</th>
-              <th>Last Checkup</th>
               <th>Assigned Doctor</th>
+              <th>Address</th>
+              <th>Phone</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {/* Initial loading state */}
+            {/* Initial loading */}
             {isLoading && patientData.length === 0 && (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="8"
                   className="text-center py-6 text-gray-400 italic"
                 >
                   Loading patients...
@@ -116,7 +116,7 @@ const AllPatients = () => {
             {!isLoading && patientData.length === 0 && (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="8"
                   className="text-center py-6 text-gray-400 italic"
                 >
                   No patients found.
@@ -124,9 +124,33 @@ const AllPatients = () => {
               </tr>
             )}
 
+            {/* if searching patient */}
+            {isFetching && (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="text-center py-6 text-gray-400 italic"
+                >
+                  Searching result...
+                </td>
+              </tr>
+            )}
+
+            {/* if no doctors found */}
+            {!isFetching && !error && search && results.length === 0 && (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="text-center py-6 text-gray-400 italic"
+                >
+                  No patient found
+                </td>
+              </tr>
+            )}
+
             {/* Data rows */}
             {!isLoading &&
-              patientData.map((patient) => (
+              displayedData.map((patient) => (
                 <tr key={patient.id}>
                   <td>
                     <div className="flex items-center gap-3">
@@ -134,10 +158,10 @@ const AllPatients = () => {
                         <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
                           <img
                             src={
-                              patient.profile?.avatar_url ||
-                              'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+                              patient.profile?.sex === 'Male'
+                                ? maleAvatar
+                                : femaleAvatar
                             }
-                            alt="Avatar"
                           />
                         </div>
                       </div>
@@ -146,23 +170,25 @@ const AllPatients = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="text-sm">
-                    {patient.age || 'No age provided'}
-                  </td>
+                  <td className="text-sm">{patient.profile?.age || 'null'}</td>
+                  <td className="text-sm">{patient.profile?.sex || 'null'}</td>
                   <td>
                     <span
                       className={`btn border-none cursor-auto ${
-                        riskLevelStyles[patient.riskLevel]
+                        riskLevelStyles[patient.risk_level]
                       } btn-xs`}
                     >
-                      {patient.riskLevel || 'Unknown'}
+                      {patient.risk_level || 'Unknown'}
                     </span>
                   </td>
                   <td className="text-sm">
-                    {patient.lastCheckup || 'No checkup records'}
+                    Dr. {patient.doctor?.profile?.full_name || 'Unassigned'}
                   </td>
                   <td className="text-sm">
-                    {patient.doctor?.profile?.full_name || 'Unassigned'}
+                    {patient.profile?.address || 'null'}
+                  </td>
+                  <td className="text-sm">
+                    {patient.profile?.phone_number || 'null'}
                   </td>
                   <td>
                     <div className="flex items-center gap-1">
@@ -173,13 +199,10 @@ const AllPatients = () => {
                           modalRef.current?.open()
                         }}
                       >
-                        <IoEyeOutline size={18} />
-                      </button>
-                      <button className="btn btn-ghost hover:bg-white border-none shadow-none btn-xs">
-                        <FaRegEdit size={16} />
+                        <IoMdEye size={18} />
                       </button>
                       <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
-                        <FaRegTrashCan size={14} />
+                        <FaTrash size={14} />
                       </button>
                     </div>
                   </td>
@@ -199,7 +222,7 @@ const AllPatients = () => {
         )}
 
         {/* No more data indicator */}
-        {!hasNextPage && patientData.length > 0 && (
+        {!search && !hasNextPage && patientData.length > 0 && (
           <p className="text-center text-xs text-gray-400 mt-2 italic">
             No more data to load
           </p>

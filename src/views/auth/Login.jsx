@@ -7,19 +7,17 @@ import { Link, useNavigate } from 'react-router'
 import { loginInputs } from '../../lib/loginInputs'
 
 const Login = () => {
-  const login = useAuthStore((state) => state.login) // get the login method from the store
-  const modalRef = useRef(null) // Ref for the modal
-  const navigate = useNavigate() // For navigation after login
-  const [showPassword, setShowPassword] = useState(false) // State to toggle password visibility
-  const [loading, setLoading] = useState(false) // Loading state for the form submission
+  const login = useAuthStore((state) => state.login)
+  const modalRef = useRef(null)
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [modalData, setModalData] = useState({
-    // State for modal content
     isOpen: false,
     type: '',
     message: '',
   })
   const [formData, setFormData] = useState({
-    // State for form inputs
     email: '',
     password: '',
   })
@@ -33,14 +31,13 @@ const Login = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault() // Prevent default form submission
+    e.preventDefault()
     setLoading(true)
-    const { email, password } = formData // Destructure email and password from formData
+    const { email, password } = formData
     try {
-      await login(email, password) // Call the login method from the store
-      redirectByRole(navigate) // On successful login, redirect based on user role
+      await login(email, password)
+      redirectByRole(navigate)
     } catch (error) {
-      // Handle login errors
       setModalData({
         isOpen: true,
         type: 'error',
@@ -53,8 +50,8 @@ const Login = () => {
 
   // Handle input changes
   const handleChange = (e) => {
-    const { id, value } = e.target // Destructure id and value from the event target
-    setFormData({ ...formData, [id]: value }) // Update the corresponding field in formData
+    const { id, value } = e.target
+    setFormData({ ...formData, [id]: value })
   }
 
   return (
@@ -94,9 +91,16 @@ const Login = () => {
         </div>
         <button
           type="submit"
-          className="btn bg-blue-500 hover:bg-blue-400 text-white border-none rounded-md w-full"
+          className="btn rounded-md border-none btn-info text-white w-full"
         >
-          {loading ? 'Signing in...' : 'Sign in'}
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              <span>Signing in...</span>
+            </>
+          ) : (
+            <span>Sign in</span>
+          )}
         </button>
       </form>
 

@@ -7,15 +7,11 @@ const PAGE_SIZE = 10
 export async function fetchAllDoctors({ pageParam = 0 }) {
   const from = pageParam * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
-
   const { data, error } = await supabase
     .from('doctors')
     .select('*, profiles!inner(*)', { count: 'exact' })
     .range(from, to)
-
   if (error) throw error
-
-  // return shape: data array and whether there's next page
   return {
     data,
     nextPage: data.length === PAGE_SIZE ? pageParam + 1 : null,
@@ -36,10 +32,8 @@ export async function updateDoctorData({
     .eq('user_id', userId)
     .select()
     .single()
-
   if (profError) throw profError
   if (!profData) throw new Error('No profile found for this user')
-
   // Update doctors table using profile.id
   const { data: docData, error: docErr } = await supabase
     .from('doctors')
@@ -47,10 +41,8 @@ export async function updateDoctorData({
     .eq('user_id', profData.id)
     .select()
     .single()
-
   if (docErr) throw docErr
   if (!docData) throw new Error(`No doctor record found for user_id: ${userId}`)
-
   // Return updated data
   return { profData, docData }
 }
@@ -58,16 +50,12 @@ export async function updateDoctorData({
 // Function to fetch doctor data by userId
 export async function fetchDoctorById(userId) {
   if (!userId) return null
-
-  // Fetch doctor with related profile
   const { data, error } = await supabase
     .from('doctors')
     .select('*, profiles!inner(*)')
     .eq('profiles.user_id', userId)
     .maybeSingle()
-
   if (error) throw error
-
   return data
 }
 
@@ -77,7 +65,6 @@ export async function searchDoctor(query) {
     .from('doctors')
     .select('*, profiles!inner(*)')
     .ilike('profiles.full_name', `%${query}%`)
-
   if (error) throw error
   return data
 }

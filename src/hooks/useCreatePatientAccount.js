@@ -1,13 +1,14 @@
 import { useMutation } from '@tanstack/react-query'
 import { createPatientAccount } from '../services/createPatientAccount'
 import { useAuthStore } from '../stores/useAuthStore'
+import { useDoctorId } from './useDoctorId'
 
 // Hook that uses React Query's useMutation to handle patient account creation
 export const useCreatePatientAccount = (options = {}) => {
   const profile = useAuthStore((state) => state.profile)
-  const account_id = useAuthStore((state) => state.account_id)
-  console.log("profile", profile)
-  console.log("account_id", account_id)
+  const { data: doctorId, isLoading: isDoctorLoading } = useDoctorId(
+    profile?.id
+  )
 
   return useMutation({
     mutationFn: async ({ email, patientData }) => {
@@ -15,11 +16,15 @@ export const useCreatePatientAccount = (options = {}) => {
         throw new Error('Doctor profile not loaded. Please try again.')
       }
 
+      if (isDoctorLoading || !doctorId) {
+        throw new Error('Doctor ID not loaded. Please try again.')
+      }
+
       const payload = {
         email,
         patientData: {
           ...patientData,
-          doctor_id: account_id.id,
+          doctor_id: doctorId,
           age: Number(patientData.age),
           bp_systolic: Number(patientData.bp_systolic),
           bp_diastolic: Number(patientData.bp_diastolic),
@@ -35,6 +40,7 @@ export const useCreatePatientAccount = (options = {}) => {
 
     onSuccess: (data) => {
       console.log('Patient account created successfully:', data)
+      alert(`Patient password: ${data.data.password}`) // temporary since way free nga SMTP
       options?.onSuccess?.(data)
     },
 

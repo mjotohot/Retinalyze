@@ -50,7 +50,7 @@ export const doctorsNavItems = [
 export const patientsNavItems = [
   {
     label: 'Results',
-    path: '/results',
+    path: '/user',
     icon: BiSolidDashboard,
   },
 ]

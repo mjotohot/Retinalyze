@@ -1,26 +1,74 @@
 import Sidebar from '../../components/navigations/Sidebar'
 import { CiSearch } from 'react-icons/ci'
-import { FaRegTrashCan } from 'react-icons/fa6'
-import { IoEyeOutline } from 'react-icons/io5'
-import ResultModal from '../../components/commons/ResultModal'
-import { useState, useRef } from 'react'
+import { FaTrash } from 'react-icons/fa6'
+import { IoMdEye } from 'react-icons/io'
+import { useRef, useEffect, useState } from 'react'
 import { riskLevelStyles } from '../../utils/riskLevelStyles'
-import { patients } from '../../lib/data'
+import { useFetchPatientsByDoctor } from '../../hooks/useFetchPatientByDoctor'
+import { useAuthStore } from '../../stores/useAuthStore'
+import { useSearch } from '../../hooks/useSearch'
+import { searchPatient } from '../../services/fetchPatient'
+import { useDoctorId } from '../../hooks/useDoctorId'
+import { riskFilterOptions } from '../../lib/riskFilterOptions'
+import SelectFilters from '../../components/commons/SelectFilters'
+import maleAvatar from '../../assets/images/male.jpg'
+import femaleAvatar from '../../assets/images/female.jpg'
+import ResultModal from '../../components/commons/ResultModal'
 
 const PatientList = () => {
   const modalRef = useRef()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [riskFilter, setRiskFilter] = useState('')
-  const [selectedPatient, setSelectedPatient] = useState(null)
+  const loadMoreRef = useRef(null)
+  const [selectedRisk, setSelectedRisk] = useState('')
+  const [selectedPatient, setSelectedPatient] = useState('')
 
-  const filteredPatients = patients.filter((p) => {
-    const search = searchTerm.toLowerCase()
-    const matchesNameOrAge =
-      p.patient.toLowerCase().includes(search) ||
-      p.age.toString().includes(search)
-    const matchesRisk = riskFilter === '' || p.riskLevel === riskFilter
-    return matchesNameOrAge && matchesRisk
+  const profile = useAuthStore((state) => state.profile)
+  const { data: doctorId } = useDoctorId(profile?.id)
+
+  // Fetch patients by doctor with infinite scrolling
+  const {
+    data: patients,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFetchPatientsByDoctor(doctorId, selectedRisk)
+
+  // Search functionality
+  const { search, setSearch, results, isFetching, error } = useSearch({
+    searchFn: (query) => (doctorId ? searchPatient(query, doctorId) : []),
+    delay: 400,
   })
+
+  // Flatten the paginated data into a single array
+  const patientData = patients?.pages.flatMap((page) => page.data) ?? []
+
+  // Determine which data to display: search results or fetched patient data
+  const displayedData = search ? results : patientData
+
+  // Observe when the sentinel div (loadMoreRef) comes into view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        if (
+          entry.isIntersecting &&
+          hasNextPage &&
+          !isLoading &&
+          !isFetchingNextPage
+        ) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1.0 }
+    )
+
+    // Attach observer to the sentinel div
+    const currentRef = loadMoreRef.current
+    if (currentRef) observer.observe(currentRef)
+    return () => {
+      if (currentRef) observer.unobserve(currentRef)
+    }
+  }, [hasNextPage, fetchNextPage, isLoading, isFetchingNextPage])
 
   return (
     <>
@@ -34,97 +82,178 @@ const PatientList = () => {
                 Manage your patient records and analysis.
               </span>
             </h1>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <select
-                className="select rounded-md bg-white w-full sm:w-1/2"
-                value={riskFilter}
-                onChange={(e) => setRiskFilter(e.target.value)}
-              >
-                <option value="">All Risk Levels</option>
-                <option value="High">High Risk</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Low">Low Risk</option>
-              </select>
-              <label className="input rounded-md bg-white flex items-center gap-2">
-                <CiSearch className="opacity-50" />
-                <input
-                  type="search"
-                  className="w-full"
-                  required
-                  placeholder="Search name or age"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </label>
-            </div>
           </div>
           <div className="overflow-x-auto p-6 bg-white mt-6 rounded-md shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <label className="flex input items-center gap-2 border rounded-md border-none px-3 py-2 w-full sm:w-1/2">
+                <CiSearch className="opacity-50 text-lg" />
+                <input
+                  type="search"
+                  className="w-full outline-none"
+                  placeholder="Search for a patient name. . ."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </label>
+              <SelectFilters
+                options={riskFilterOptions}
+                selectedValue={selectedRisk}
+                onChange={setSelectedRisk}
+              />
+            </div>
             <table className="table table-sm">
               <thead>
-                <tr className="text-xs sm:text-sm">
+                <tr className="text-xs sm:text-sm tracking-wider">
                   <th>Patient Name</th>
                   <th>Age</th>
+                  <th>Sex</th>
                   <th>Risk Level</th>
-                  <th>Last Checkup</th>
+                  <th>Address</th>
+                  <th>Phone</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredPatients.map((patient) => (
-                  <tr key={patient.id}>
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="avatar">
-                          <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
-                            <img src={patient.image} alt="Avatar" />
-                          </div>
-                        </div>
-                        <div className="text-sm sm:text-base">
-                          {patient.patient}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="text-sm">{patient.age}</td>
-                    <td>
-                      <span
-                        className={`btn border-none cursor-auto ${
-                          riskLevelStyles[patient.riskLevel]
-                        } btn-xs`}
-                      >
-                        {patient.riskLevel}
-                      </span>
-                    </td>
-                    <td className="text-sm">{patient.lastCheckup}</td>
-                    <td>
-                      <div className="flex items-center gap-1">
-                        <button
-                          className="btn btn-ghost hover:bg-white border-none shadow-none btn-xs"
-                          onClick={() => {
-                            setSelectedPatient(patient)
-                            modalRef.current?.open()
-                          }}
-                        >
-                          <IoEyeOutline size={18} />
-                        </button>
-                        <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
-                          <FaRegTrashCan size={14} />
-                        </button>
-                      </div>
+                {/* Initial loading state */}
+                {isLoading && patientData.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="py-6 text-gray-400 text-center italic"
+                    >
+                      Loading patients...
                     </td>
                   </tr>
-                ))}
+                )}
+
+                {/* if no data response */}
+                {!isLoading && patientData.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-400 italic"
+                    >
+                      No patient found.
+                    </td>
+                  </tr>
+                )}
+
+                {/* if searching patient */}
+                {isFetching && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-400 italic"
+                    >
+                      Searching result...
+                    </td>
+                  </tr>
+                )}
+
+                {/* if no patients found */}
+                {!isFetching && !error && search && results.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-400 italic"
+                    >
+                      No patient found
+                    </td>
+                  </tr>
+                )}
+
+                {/* Display patient data */}
+                {!isLoading &&
+                  displayedData.map((patient) => (
+                    <tr key={patient.id}>
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <div className="avatar">
+                            <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
+                              <img
+                                src={
+                                  patient.profile?.sex === 'Male'
+                                    ? maleAvatar
+                                    : femaleAvatar
+                                }
+                              />
+                            </div>
+                          </div>
+                          <div className="text-sm sm:text-base">
+                            {patient.profile?.full_name || 'null'}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-sm">
+                        {patient.profile?.age || 'null'}
+                      </td>
+                      <td className="text-sm">
+                        {patient.profile?.sex || 'null'}
+                      </td>
+                      <td>
+                        <span
+                          className={`btn border-none cursor-auto ${
+                            riskLevelStyles[patient.risk_level]
+                          } btn-xs`}
+                        >
+                          {patient.risk_level || 'unknown'}
+                        </span>
+                      </td>
+                      <td className="text-sm">
+                        {patient.profile?.address || 'null'}
+                      </td>
+                      <td className="text-sm">
+                        {patient.profile?.phone_number || 'null'}
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-1">
+                          <button
+                            className="btn btn-ghost hover:bg-white border-none shadow-none btn-xs"
+                            onClick={() => {
+                              setSelectedPatient(patient)
+                              modalRef.current?.open()
+                            }}
+                          >
+                            <IoMdEye size={18} />
+                          </button>
+                          <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
+                            <FaTrash size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
+            {/* Sentinel div for infinite scrolling */}
+            <div ref={loadMoreRef} className="h-6"></div>
+
+            {/* Loading indicator for infinite scroll */}
+            {isFetchingNextPage && (
+              <p className="text-center text-sm text-gray-400 mt-2 italic">
+                Loading more...
+              </p>
+            )}
+
+            {/* No more data indicator */}
+            {!search && !hasNextPage && patientData.length > 0 && (
+              <p className="text-center text-xs text-gray-400 mt-2 italic">
+                No more data to load
+              </p>
+            )}
+
             <div className="text-xs text-gray-500 mt-2 sm:hidden">
               Scroll horizontally to view full table →
             </div>
           </div>
         </main>
       </div>
+
       <ResultModal
         ref={modalRef}
         patient={selectedPatient}
-        onClose={() => {}}
+        onClose={() => setSelectedPatient(null)}
+        isDoctor={profile?.role === 'doctor'}
       />
     </>
   )

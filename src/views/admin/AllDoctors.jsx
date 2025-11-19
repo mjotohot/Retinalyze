@@ -5,6 +5,8 @@ import { useFetchDoctor } from '../../hooks/useFetchDoctor'
 import { searchDoctor } from '../../services/fetchDoctor'
 import { useSearch } from '../../hooks/useSearch'
 import { useEffect, useRef } from 'react'
+import maleAvatar from '../../assets/images/male.jpg'
+import femaleAvatar from '../../assets/images/female.jpg'
 
 const AllDoctors = () => {
   //
@@ -86,7 +88,7 @@ const AllDoctors = () => {
 
             <table className="table table-sm">
               <thead>
-                <tr className="text-xs sm:text-sm">
+                <tr className="text-xs sm:text-sm tracking-wide">
                   <th>Doctor's Name</th>
                   <th>Age</th>
                   <th>Sex</th>
@@ -156,10 +158,10 @@ const AllDoctors = () => {
                             <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
                               <img
                                 src={
-                                  doctor.profiles?.avatar_url ||
-                                  'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+                                  doctor.profiles?.sex === 'Male'
+                                    ? maleAvatar
+                                    : femaleAvatar
                                 }
-                                alt="Avatar"
                               />
                             </div>
                           </div>
