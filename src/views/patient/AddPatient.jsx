@@ -13,6 +13,7 @@ const AddPatient = () => {
   // Ref for the modal
   const modalRef = useRef(null)
 
+  // State for form data
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
@@ -39,6 +40,7 @@ const AddPatient = () => {
     message: '',
   })
 
+  // Effect to open modal when modalData.isOpen changes
   useEffect(() => {
     if (modalData.isOpen) {
       modalRef.current?.showModal()
@@ -46,51 +48,53 @@ const AddPatient = () => {
   }, [modalData.isOpen])
 
   // Initialize retinal image prediction hook
-  const { mutateAsync: predictImage, isPending: isImagePredicting } = useRetinalImagePrediction({
-    onSuccess: (data) => {
-      console.log('Retinal image prediction result:', data)
-    },
-    onError: (error) => {
-      console.error('Image prediction error:', error)
-    }
-  })
+  const { mutateAsync: predictImage, isPending: isImagePredicting } =
+    useRetinalImagePrediction({
+      onSuccess: (data) => {
+        console.log('Retinal image prediction result:', data)
+      },
+      onError: (error) => {
+        console.error('Image prediction error:', error)
+      },
+    })
 
   // Initialize patient account creation hook
-  const { mutateAsync: createPatient, isPending: isCreatingPatient } = useCreatePatientAccount({
-    onSuccess: (data) => {
-      // reset form
-      setFormData({
-        email: '',
-        full_name: '',
-        age: '',
-        sex: '',
-        phone_number: '',
-        address: '',
-        diabetic: '',
-        smoking: '',
-        hypertension: '',
-        stroke_history: '',
-        bp_systolic: '',
-        bp_diastolic: '',
-      })
-      setRetinalImage(null)
-      setImagePreview(null)
-      setModalData({
-        isOpen: true,
-        type: 'success',
-        message: data?.message || 'Patient account created successfully.',
-      })
-      modalRef.current?.showModal()
-    },
-    onError: (error) => {
-      setModalData({
-        isOpen: true,
-        type: 'error',
-        message: error.message || 'Account creation failed.',
-      })
-      modalRef.current?.showModal()
-    },
-  })
+  const { mutateAsync: createPatient, isPending: isCreatingPatient } =
+    useCreatePatientAccount({
+      onSuccess: (data) => {
+        // reset form
+        setFormData({
+          email: '',
+          full_name: '',
+          age: '',
+          sex: '',
+          phone_number: '',
+          address: '',
+          diabetic: '',
+          smoking: '',
+          hypertension: '',
+          stroke_history: '',
+          bp_systolic: '',
+          bp_diastolic: '',
+        })
+        setRetinalImage(null)
+        setImagePreview(null)
+        setModalData({
+          isOpen: true,
+          type: 'success',
+          message: data?.message || 'Patient account created successfully.',
+        })
+        modalRef.current?.showModal()
+      },
+      onError: (error) => {
+        setModalData({
+          isOpen: true,
+          type: 'error',
+          message: error.message || 'Account creation failed.',
+        })
+        modalRef.current?.showModal()
+      },
+    })
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -104,7 +108,7 @@ const AddPatient = () => {
     const file = e.target.files[0]
     if (file) {
       setRetinalImage(file)
-      
+
       // Create preview URL
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -114,37 +118,36 @@ const AddPatient = () => {
     }
   }
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     try {
-      let imagePredictionResult = null;
-
+      let imagePredictionResult = null
       // Step 1: Predict retinal image if uploaded
       if (retinalImage) {
-        console.log('Starting retinal image prediction...')
         imagePredictionResult = await predictImage(retinalImage)
         console.log('Image prediction completed:', imagePredictionResult)
-        console.log('Image prediction label:', imagePredictionResult?.[0]?.label)
+        console.log(
+          'Image prediction label:',
+          imagePredictionResult?.[0]?.label
+        )
       } else {
         console.log('No retinal image uploaded, skipping image prediction')
       }
-
       // Step 2: Create patient account (this will run health prediction, upload image, and combine predictions)
-      console.log('Creating patient account with predictions...')
       const { email, ...patientData } = formData
-      await createPatient({ 
-        email, 
+      await createPatient({
+        email,
         patientData,
         imagePrediction: imagePredictionResult, // Pass image prediction to be combined
-        retinalImageFile: retinalImage // Pass the image file to be uploaded
+        retinalImageFile: retinalImage, // Pass the image file to be uploaded
       })
-      
     } catch (error) {
       console.error('Form submission error:', error)
     }
   }
 
+  // Determine if any async operation is pending
   const isPending = isImagePredicting || isCreatingPatient
 
   return (
@@ -196,15 +199,15 @@ const AddPatient = () => {
                       </span>
                     </h2>
                   </div>
-                  
+
                   {/* Image Preview */}
-                  {imagePreview && (
-                    <div className="mb-4 flex justify-center">
-                      <div className="relative">
-                        <img 
-                          src={imagePreview} 
-                          alt="Retinal scan preview" 
-                          className="max-w-xs rounded-lg border-2 border-gray-300"
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors relative">
+                    {imagePreview ? (
+                      <div className="relative inline-block">
+                        <img
+                          src={imagePreview}
+                          alt="Retinal scan preview"
+                          className="max-w-md rounded-lg border-2 border-gray-300"
                         />
                         <button
                           type="button"
@@ -217,24 +220,26 @@ const AddPatient = () => {
                           ✕
                         </button>
                       </div>
-                    </div>
-                  )}
-
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                    <FaUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-sm font-medium text-gray-900">
-                      Upload retinal image
-                    </p>
-                    <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="file-input file-input-bordered mt-4 w-full max-w-xs"
-                      onChange={handleImageChange}
-                    />
+                    ) : (
+                      <div>
+                        <FaUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                        <p className="text-sm font-medium text-gray-900">
+                          Upload retinal image
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG up to 10MB
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="file-input file-input-bordered mt-4 w-full max-w-xs"
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-center mt-5 mb-5">
                   <button
                     type="submit"
@@ -245,7 +250,9 @@ const AddPatient = () => {
                       <>
                         <span className="loading loading-spinner loading-sm"></span>
                         <span>
-                          {isImagePredicting ? 'Analyzing Image...' : 'Creating...'}
+                          {isImagePredicting
+                            ? 'Analyzing Image...'
+                            : 'Creating...'}
                         </span>
                       </>
                     ) : (

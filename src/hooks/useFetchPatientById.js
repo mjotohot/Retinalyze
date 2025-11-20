@@ -20,6 +20,8 @@ export const useFetchPatientById = (userId) => {
         .eq('user_id', userId)
         .maybeSingle()
 
+      console.log('Fetched patient data:', data)
+
       if (error) throw error
       return data
     },

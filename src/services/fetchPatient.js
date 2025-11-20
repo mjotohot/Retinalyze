@@ -113,6 +113,7 @@ export async function fetchPatientCounts(doctorId) {
   const monitored = await base.eq('risk_level', 'Moderate')
   const highRisk = await base.eq('risk_level', 'High')
   const thisWeek = await base.gte(
+    // need fixing
     'created_at',
     new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
   )

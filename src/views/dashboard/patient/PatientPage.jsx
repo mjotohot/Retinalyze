@@ -33,15 +33,40 @@ const PatientPage = () => {
         ? `Dr. ${patient.doctor.profile.full_name}`
         : 'Unassigned',
     },
+    {
+      label: 'Diabeties',
+      id: 'diabeties',
+      value: patient.diabetic,
+    },
+
+    {
+      label: 'Hypertension',
+      id: 'hypertension',
+      value: patient.hypertension,
+    },
+    {
+      label: 'BP Diastolic',
+      id: 'bp_diastolic',
+      value: patient.bp_diastolic,
+    },
+    {
+      label: 'BP Systolic',
+      id: 'bp_systolic',
+      value: patient.bp_systolic,
+    },
   ]
 
   // Analysis fields config
   const analysisFields = [
-    { label: 'Risk Level', id: 'risk', value: patient.risk_level || 'Unknown' },
     {
-      label: "Doctor's Recommendations",
-      id: 'recommendations',
-      value: patient.recommendations || 'No recommendations yet.',
+      label: 'Percetage Range',
+      id: 'percentage_range',
+      value: patient.percentage_range || 'Unknown',
+    },
+    {
+      label: 'Probability Range',
+      id: 'probability_range',
+      value: patient.probability_range || 'Unknown',
     },
   ]
 
@@ -140,6 +165,12 @@ const PatientPage = () => {
               />
             ))}
           </div>
+          <textarea
+            id="recommendations"
+            className="textarea textarea-bordered rounded-md w-full min-h-32 text-sm mt-5"
+            placeholder="Enter your clinical assessment, recommended treatments, follow-up schedule, and any additional notes..."
+            value={patient.recommendation || 'No recommendations yet.'}
+          ></textarea>
         </div>
       </main>
     </div>

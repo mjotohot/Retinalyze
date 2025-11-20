@@ -187,7 +187,7 @@ const PatientList = () => {
                       <td className="text-sm">
                         {patient.profile?.age || 'null'}
                       </td>
-                     <td className="text-sm">
+                      <td className="text-sm">
                         {patient.profile?.sex === '0'
                           ? 'Male'
                           : patient.profile?.sex === '1'
