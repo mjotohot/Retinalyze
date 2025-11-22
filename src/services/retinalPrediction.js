@@ -1,5 +1,4 @@
-
-import { Client } from "@gradio/client";
+import { Client } from '@gradio/client'
 
 /**
  * Predicts retinal health risk based on patient data
@@ -16,9 +15,9 @@ import { Client } from "@gradio/client";
  */
 export const predictRetinalHealth = async (patientData) => {
   try {
-    const client = await Client.connect("Maikuuuu/RetinalText");
-    
-    const result = await client.predict("/predict", {
+    const client = await Client.connect('Maikuuuu/RetinalText')
+
+    const result = await client.predict('/predict', {
       age: patientData.age,
       sex: patientData.sex,
       bp_systolic: patientData.bp_systolic,
@@ -27,11 +26,11 @@ export const predictRetinalHealth = async (patientData) => {
       smoking: patientData.smoking,
       hypertension: patientData.hypertension ? 1 : 0, // Convert boolean to number
       strokehistory: patientData.stroke_history ? 1 : 0, // Convert boolean to number
-    });
+    })
 
-    return result.data;
+    return result.data
   } catch (error) {
-    console.error('Error predicting retinal health:', error);
-    throw new Error(`Retinal health prediction failed: ${error.message}`);
+    console.error('Error predicting retinal health:', error)
+    throw new Error(`Retinal health prediction failed: ${error.message}`)
   }
-};
+}

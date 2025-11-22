@@ -44,6 +44,12 @@ const ResultModal = forwardRef(
       }
     }
 
+    const getProbabilityRange = (score) => {
+      if (score < 0.4) return 'Low (0–39%)'
+      if (score < 0.7) return 'Moderate (40–69%)'
+      return 'High (70–100%)'
+    }
+
     return (
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box w-full max-w-5xl p-0 sm:p-4">
@@ -108,7 +114,7 @@ const ResultModal = forwardRef(
               <div className="card-body p-4">
                 <h2 className="card-title text-base sm:text-lg flex items-center gap-2">
                   <MdWarning className="text-xl" />
-                  Risk Assessment Summary
+                  Retinal & Health Prediction Summary
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-4">
                   <div className="flex flex-col">
@@ -123,15 +129,46 @@ const ResultModal = forwardRef(
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Probability Range</p>
-                    <p className="font-semibold text-gray-800 mt-1">
-                      {patient?.probability || 'N/A'}
-                    </p>
+                    {patient?.combined_score ? (
+                      <p className="font-semibold text-gray-800 mt-1">
+                        {getProbabilityRange(patient.combined_score)}
+                      </p>
+                    ) : (
+                      <p className="font-semibold text-gray-800 mt-1">N/A</p>
+                    )}
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Percentage Range</p>
-                    <p className="font-semibold text-gray-800 mt-1">
-                      {patient?.percentage || 'N/A'}
+                    <p className="text-sm text-gray-500 mb-1">
+                      Risk Probability
                     </p>
+
+                    {patient?.combined_score ? (
+                      <div className="relative w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                        {/* Filled bar */}
+                        <div
+                          className={`h-full flex items-center justify-center text-xs font-semibold text-white transition-all duration-500 ${
+                            patient.combined_score >= 0.7
+                              ? 'bg-red-500'
+                              : patient.combined_score >= 0.4
+                                ? 'bg-yellow-400 text-gray-800'
+                                : 'bg-green-500'
+                          }`}
+                          style={{ width: `${patient.combined_score * 100}%` }}
+                        >
+                          {/* Label inside the bar */}
+                          {(patient.combined_score * 100).toFixed(1)}%
+                        </div>
+
+                        {/* Optional transparent overlay for label visibility if bar is small */}
+                        {patient.combined_score < 0.15 && (
+                          <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-gray-800">
+                            {(patient.combined_score * 100).toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="font-semibold text-gray-800 mt-1">N/A</p>
+                    )}
                   </div>
                 </div>
               </div>
