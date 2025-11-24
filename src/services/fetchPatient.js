@@ -92,31 +92,51 @@ export async function fetchPatientsByDoctor({
 
 // Function to search patient
 export async function searchPatient(query, doctorId) {
-  const { data, error } = await supabase
+  let queryBuilder = supabase
     .from('patients')
     .select('*, profile:profiles!inner(*)')
     .ilike('profiles.full_name', `%${query}%`)
-    .eq('doctor_id', doctorId)
+
+  // only fetch patients for the specified doctor
+  if (doctorId) {
+    queryBuilder = queryBuilder.eq('doctor_id', doctorId)
+  }
+
+  const { data, error } = await queryBuilder
 
   if (error) throw error
   return data
 }
 
 // Function to fetch patient counts by risk levels and time frame
+// Function to fetch patient counts by risk levels and time frame
 export async function fetchPatientCounts(doctorId) {
-  const base = supabase
+  const oneWeekAgo = new Date(
+    Date.now() - 7 * 24 * 60 * 60 * 1000
+  ).toISOString()
+
+  const total = await supabase
     .from('patients')
     .select('*', { count: 'exact', head: true })
     .eq('doctor_id', doctorId)
 
-  const total = await base
-  const monitored = await base.eq('risk_level', 'Moderate')
-  const highRisk = await base.eq('risk_level', 'High')
-  const thisWeek = await base.gte(
-    // need fixing
-    'created_at',
-    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  )
+  const monitored = await supabase
+    .from('patients')
+    .select('*', { count: 'exact', head: true })
+    .eq('doctor_id', doctorId)
+    .eq('risk_level', 'Moderate')
+
+  const highRisk = await supabase
+    .from('patients')
+    .select('*', { count: 'exact', head: true })
+    .eq('doctor_id', doctorId)
+    .eq('risk_level', 'High')
+
+  const thisWeek = await supabase
+    .from('patients')
+    .select('*', { count: 'exact', head: true })
+    .eq('doctor_id', doctorId)
+    .gte('created_at', oneWeekAgo)
 
   return {
     total: total.count,

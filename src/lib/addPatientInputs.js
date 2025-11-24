@@ -32,6 +32,13 @@ export const addPatientInputs = [
     required: true,
   },
   {
+    label: 'Birthday',
+    id: 'birthday',
+    type: 'date',
+    placeholder: "Enter patient's birthday",
+    required: true,
+  },
+  {
     label: 'Phone',
     id: 'phone_number',
     type: 'number',

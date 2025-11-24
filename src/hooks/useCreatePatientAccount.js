@@ -1,4 +1,3 @@
-// hooks/useCreatePatientAccount.js
 import { useMutation } from '@tanstack/react-query'
 import { createPatientAccount } from '../services/createPatientAccount'
 import { predictRetinalHealth } from '../services/retinalPrediction'
@@ -44,8 +43,6 @@ export const useCreatePatientAccount = (options = {}) => {
         stroke_history: Number(patientData.stroke_history),
       }
 
-    
-
       // Prepare health prediction input
       const healthPredictionInput = {
         age: transformedData.age,
@@ -58,27 +55,19 @@ export const useCreatePatientAccount = (options = {}) => {
         stroke_history: transformedData.stroke_history,
       }
 
-      
       const healthPrediction = await predictRetinalHealth(healthPredictionInput)
-
 
       // Upload retinal image if provided
       let retinalImageUrl = null
       if (retinalImageFile) {
-  
         retinalImageUrl = await uploadRetinalImage(retinalImageFile, email)
       }
 
       // Combine predictions if image prediction exists
       let finalPrediction
       if (imagePrediction) {
-  
-        
         finalPrediction = combinePredictions(imagePrediction, healthPrediction)
-        
       } else {
-      
-        
         // Use health prediction only if no image was provided
         finalPrediction = {
           final_risk_level: healthPrediction?.[0]?.RiskLevel || 'Unknown',
@@ -91,8 +80,11 @@ export const useCreatePatientAccount = (options = {}) => {
           requires_immediate_attention: false,
           prediction_date: new Date().toISOString(),
         }
-        
-        console.log('Final prediction (health only):', JSON.stringify(finalPrediction, null, 2))
+
+        console.log(
+          'Final prediction (health only):',
+          JSON.stringify(finalPrediction, null, 2)
+        )
       }
 
       // Add final prediction result and image URL to patient data
@@ -108,15 +100,13 @@ export const useCreatePatientAccount = (options = {}) => {
 
       // Create the patient account with prediction data
       const result = await createPatientAccount(payload)
-    
-      
+
       return result
     },
 
     onSuccess: (data) => {
       console.log('=== SUCCESS ===')
       console.log('Patient account created successfully:', data)
-      alert(`Patient password: ${data.data.password}`) // temporary since way free nga SMTP
       options?.onSuccess?.(data)
     },
 
@@ -126,7 +116,7 @@ export const useCreatePatientAccount = (options = {}) => {
       console.error('Error details:', {
         message: error.message,
         stack: error.stack,
-        response: error.response?.data
+        response: error.response?.data,
       })
       options?.onError?.(error)
     },

@@ -2,6 +2,8 @@ import { MdPerson, MdCalendarToday, MdWarning } from 'react-icons/md'
 import { AiOutlineFileText } from 'react-icons/ai'
 import { riskLevelStyles } from '../../utils/riskLevelStyles'
 import { timeStampFormatter } from '../../utils/timeStampFormatter'
+import { genderFormatter } from '../../utils/genderFormatter'
+import { getProbabilityRange } from '../../utils/probabilityRange'
 import { savePatientRecommendation } from '../../services/fetchPatient'
 import {
   useRef,
@@ -44,12 +46,6 @@ const ResultModal = forwardRef(
       }
     }
 
-    const getProbabilityRange = (score) => {
-      if (score < 0.4) return 'Low (0–39%)'
-      if (score < 0.7) return 'Moderate (40–69%)'
-      return 'High (70–100%)'
-    }
-
     return (
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box w-full max-w-5xl p-0 sm:p-4">
@@ -69,7 +65,7 @@ const ResultModal = forwardRef(
               </p>
             </div>
             {patient ? (
-              <div className="card border rounded-md">
+              <div className="card border border-gray-500 rounded-md">
                 <div className="card-body p-4">
                   <h2 className="card-title text-base sm:text-lg flex items-center gap-2">
                     <MdPerson className="text-xl" />
@@ -98,7 +94,7 @@ const ResultModal = forwardRef(
                     <div>
                       <p className="text-sm text-gray-500">Sex</p>
                       <p className="font-semibold">
-                        {patient.profile?.sex || 'null'}
+                        {genderFormatter(patient.profile?.sex || 'N/A')}
                       </p>
                     </div>
                   </div>
@@ -110,7 +106,7 @@ const ResultModal = forwardRef(
               </p>
             )}
 
-            <div className="card rounded-md border">
+            <div className="card rounded-md border border-gray-500">
               <div className="card-body p-4">
                 <h2 className="card-title text-base sm:text-lg flex items-center gap-2">
                   <MdWarning className="text-xl" />
@@ -174,7 +170,7 @@ const ResultModal = forwardRef(
               </div>
             </div>
 
-            <div className="card rounded-md border">
+            <div className="card rounded-md border border-gray-500">
               <div className="card-body p-4">
                 <h2 className="card-title text-base sm:text-lg flex items-center gap-2">
                   <AiOutlineFileText className="text-xl" />
@@ -192,7 +188,6 @@ const ResultModal = forwardRef(
                 <textarea
                   id="recommendations"
                   className="textarea textarea-bordered rounded-md w-full min-h-32 text-sm"
-                  placeholder="Enter your clinical assessment, recommended treatments, follow-up schedule, and any additional notes..."
                   disabled={!isDoctor}
                   value={recommendation}
                   onChange={(e) => setRecommendation(e.target.value)}

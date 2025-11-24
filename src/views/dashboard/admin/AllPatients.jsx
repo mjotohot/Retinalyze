@@ -4,6 +4,7 @@ import { IoMdEye } from 'react-icons/io'
 import ResultModal from '../../../components/commons/ResultModal'
 import { useState, useRef, useEffect } from 'react'
 import { riskLevelStyles } from '../../../utils/riskLevelStyles'
+import { genderFormatter } from '../../../utils/genderFormatter'
 import { useFetchPatientData } from '../../../hooks/useFetchPatient'
 import { useSearch } from '../../../hooks/useSearch'
 import { searchPatient } from '../../../services/fetchPatient'
@@ -158,7 +159,7 @@ const AllPatients = () => {
                         <div className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
                           <img
                             src={
-                              patient.profile?.sex === 'Male'
+                              genderFormatter(patient.profile?.sex) === 'Male'
                                 ? maleAvatar
                                 : femaleAvatar
                             }
