@@ -17,7 +17,7 @@ export const combinePredictions = (imagePrediction, healthPrediction) => {
   const imageRiskScore = getImageRiskScore(imageLabel);
 const healthRiskScore = (healthPrediction?.[0]?.StrokeRiskPercent || 0) / 100;
 
-  // Calculate combined risk score (weighted average: 50% image, 50% health)
+
   const combinedScore = (imageRiskScore * 0.5) + (healthRiskScore * 0.5);
 
   // Determine final risk level
