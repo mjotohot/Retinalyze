@@ -38,15 +38,16 @@ export const useCreatePatientAccount = (options = {}) => {
         age: Number(patientData.age),
         bp_systolic: Number(patientData.bp_systolic),
         bp_diastolic: Number(patientData.bp_diastolic),
-        diabetic: patientData.diabetic === 'yes',
-        hypertension: patientData.hypertension === 'yes',
-        smoking: patientData.smoking === 'yes',
-        stroke_history: patientData.stroke_history === 'yes',
+        diabetic: Number(patientData.diabetic),
+        hypertension: Number(patientData.hypertension),
+        smoking: Number(patientData.smoking),
+        stroke_history: Number(patientData.stroke_history),
       }
 
-      // Call retinal health prediction API before creating account
-      console.log('Predicting retinal health from patient data...')
-      const healthPrediction = await predictRetinalHealth({
+    
+
+      // Prepare health prediction input
+      const healthPredictionInput = {
         age: transformedData.age,
         sex: patientData.sex,
         bp_systolic: transformedData.bp_systolic,
@@ -55,28 +56,29 @@ export const useCreatePatientAccount = (options = {}) => {
         smoking: patientData.smoking,
         hypertension: transformedData.hypertension,
         stroke_history: transformedData.stroke_history,
-      })
+      }
 
-      console.log('Health prediction result:', healthPrediction)
+      
+      const healthPrediction = await predictRetinalHealth(healthPredictionInput)
+
 
       // Upload retinal image if provided
       let retinalImageUrl = null
       if (retinalImageFile) {
-        console.log('Uploading retinal image to storage...')
+  
         retinalImageUrl = await uploadRetinalImage(retinalImageFile, email)
-        console.log('Retinal image uploaded:', retinalImageUrl)
       }
 
       // Combine predictions if image prediction exists
       let finalPrediction
       if (imagePrediction) {
-        console.log('Combining image and health predictions...')
+  
+        
         finalPrediction = combinePredictions(imagePrediction, healthPrediction)
-        console.log('Final combined prediction:', finalPrediction)
+        
       } else {
-        console.log(
-          'No image prediction available, using health prediction only'
-        )
+      
+        
         // Use health prediction only if no image was provided
         finalPrediction = {
           final_risk_level: healthPrediction?.[0]?.RiskLevel || 'Unknown',
@@ -89,6 +91,8 @@ export const useCreatePatientAccount = (options = {}) => {
           requires_immediate_attention: false,
           prediction_date: new Date().toISOString(),
         }
+        
+        console.log('Final prediction (health only):', JSON.stringify(finalPrediction, null, 2))
       }
 
       // Add final prediction result and image URL to patient data
@@ -103,17 +107,27 @@ export const useCreatePatientAccount = (options = {}) => {
       }
 
       // Create the patient account with prediction data
-      return await createPatientAccount(payload)
+      const result = await createPatientAccount(payload)
+    
+      
+      return result
     },
 
     onSuccess: (data) => {
+      console.log('=== SUCCESS ===')
       console.log('Patient account created successfully:', data)
       alert(`Patient password: ${data.data.password}`) // temporary since way free nga SMTP
       options?.onSuccess?.(data)
     },
 
     onError: (error) => {
+      console.error('=== ERROR ===')
       console.error('Error creating patient account:', error)
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data
+      })
       options?.onError?.(error)
     },
   })

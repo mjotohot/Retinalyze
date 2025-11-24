@@ -4,13 +4,13 @@ import { Client } from '@gradio/client'
  * Predicts retinal health risk based on patient data
  * @param {Object} patientData - Patient health information
  * @param {number} patientData.age - Patient's age
- * @param {string} patientData.sex - Patient's sex ('male' or 'female')
+ * @param {number} patientData.sex - Patient's sex ('male' or 'female')
  * @param {number} patientData.bp_systolic - Systolic blood pressure
  * @param {number} patientData.bp_diastolic - Diastolic blood pressure
- * @param {boolean} patientData.diabetic - Whether patient has diabetes
- * @param {string} patientData.smoking - Smoking status
- * @param {boolean} patientData.hypertension - Whether patient has hypertension
- * @param {boolean} patientData.stroke_history - Whether patient has stroke history
+ * @param {number} patientData.diabetic - Whether patient has diabetes
+ * @param {number} patientData.smoking - Smoking status
+ * @param {number} patientData.hypertension - Whether patient has hypertension
+ * @param {number} patientData.stroke_history - Whether patient has stroke history
  * @returns {Promise<Object>} Prediction result from the API
  */
 export const predictRetinalHealth = async (patientData) => {
@@ -22,10 +22,10 @@ export const predictRetinalHealth = async (patientData) => {
       sex: patientData.sex,
       bp_systolic: patientData.bp_systolic,
       bp_diastolic: patientData.bp_diastolic,
-      diabetes: patientData.diabetic ? 1 : 0, // Convert boolean to number
+      diabetes: patientData.diabetic,
       smoking: patientData.smoking,
-      hypertension: patientData.hypertension ? 1 : 0, // Convert boolean to number
-      strokehistory: patientData.stroke_history ? 1 : 0, // Convert boolean to number
+      hypertension: patientData.hypertension,
+      strokehistory: patientData.stroke_history,
     })
 
     return result.data

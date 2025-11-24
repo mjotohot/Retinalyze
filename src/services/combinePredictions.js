@@ -4,19 +4,21 @@
  * @param {string} imagePrediction.label - Label from image prediction (e.g., "Healthy", "Diseased")
  * @param {Object} healthPrediction - Result from health records prediction
  * @param {string} healthPrediction.RiskLevel - Risk level from health data (e.g., "Low", "Medium", "High")
+ * @param {number} healthPrediction.StrokeRiskPercent - Stroke risk percentage (e.g., 50 for 50%)
  * @returns {Object} Combined prediction result with final assessment
  */
 export const combinePredictions = (imagePrediction, healthPrediction) => {
   // Extract the prediction values
   const imageLabel = imagePrediction?.[0]?.label || 'Unknown';
   const riskLevel = healthPrediction?.[0]?.RiskLevel || 'Unknown';
+ 
 
   // Risk scoring system
   const imageRiskScore = getImageRiskScore(imageLabel);
-  const healthRiskScore = getHealthRiskScore(riskLevel);
+const healthRiskScore = (healthPrediction?.[0]?.StrokeRiskPercent || 0) / 100;
 
-  // Calculate combined risk score (weighted average: 60% image, 40% health)
-  const combinedScore = (imageRiskScore * 0.6) + (healthRiskScore * 0.4);
+  // Calculate combined risk score (weighted average: 50% image, 50% health)
+  const combinedScore = (imageRiskScore * 0.5) + (healthRiskScore * 0.5);
 
   // Determine final risk level
   const finalRiskLevel = getFinalRiskLevel(combinedScore);
@@ -47,39 +49,17 @@ export const combinePredictions = (imagePrediction, healthPrediction) => {
 const getImageRiskScore = (label) => {
   const labelLower = label.toLowerCase();
   
-  if (labelLower.includes('normal') || labelLower.includes('healthy')) {
-    return 0.1;
-  } else if (labelLower.includes('mild') || labelLower.includes('early')) {
-    return 0.4;
-  } else if (labelLower.includes('moderate')) {
+  if (labelLower.includes('low') || labelLower.includes('healthy')) {
+    return 0.3;
+  } else if (labelLower.includes('moderate') || labelLower.includes('early')) {
     return 0.6;
-  } else if (labelLower.includes('severe') || labelLower.includes('advanced')) {
+  } else if (labelLower.includes('high')) {
     return 0.9;
-  } else if (labelLower.includes('disease') || labelLower.includes('abnormal')) {
-    return 0.7;
   }
   
   return 0.5; // Default for unknown
 };
 
-/**
- * Converts health risk level to a risk score (0-1)
- */
-const getHealthRiskScore = (riskLevel) => {
-  const levelLower = riskLevel.toLowerCase();
-  
-  if (levelLower.includes('low') || levelLower.includes('minimal')) {
-    return 0.2;
-  } else if (levelLower.includes('medium') || levelLower.includes('moderate')) {
-    return 0.5;
-  } else if (levelLower.includes('high') || levelLower.includes('severe')) {
-    return 0.8;
-  } else if (levelLower.includes('critical') || levelLower.includes('extreme')) {
-    return 0.95;
-  }
-  
-  return 0.5; // Default for unknown
-};
 
 /**
  * Determines final risk level from combined score
