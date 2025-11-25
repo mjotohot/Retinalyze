@@ -1,6 +1,7 @@
 import AppRoutes from './routes/AppRoutes'
 import { useAuthStore } from './stores/useAuthStore'
 import { useEffect } from 'react'
+import GlobalLoader from './components/commons/GlobalLoader'
 
 const App = () => {
   // initialize the auth store when the app first loads
@@ -10,7 +11,12 @@ const App = () => {
     initialize()
   }, [initialize])
 
-  return <AppRoutes />
+  return (
+    <>
+      <GlobalLoader />
+      <AppRoutes />
+    </>
+  )
 }
 
 export default App

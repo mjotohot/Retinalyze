@@ -3,6 +3,7 @@ import Sidebar from '../../components/navigations/Sidebar'
 import { useCreateDoctorAccount } from '../../hooks/useCreateDoctorAccount'
 import InputField from '../../components/commons/InputField'
 import { addDoctorInputs } from '../../lib/addDoctorInputs'
+import { useLoadingStore } from '../../stores/useLoadingStore'
 import Modal from '../../components/commons/Modal'
 import { IoPersonAdd } from 'react-icons/io5'
 
@@ -38,6 +39,8 @@ const AddDoctor = () => {
       modalRef.current?.showModal()
     }
   }, [modalData.isOpen])
+
+  const { showLoading, hideLoading } = useLoadingStore()
 
   // Initialize mutation hook
   const { mutateAsync: createDoctor, isPending } = useCreateDoctorAccount({
@@ -84,11 +87,15 @@ const AddDoctor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      showLoading('Creating doctor...')
+
       const { email, password, ...doctorData } = formData
       await createDoctor({ email, password, doctorData })
     } catch (error) {
       console.error('Form submission error:', error)
       // Error will be handled by onError callback
+    } finally {
+      hideLoading() // always hide loader even if error occurs
     }
   }
 
@@ -143,20 +150,11 @@ const AddDoctor = () => {
                 <div className="mt-10 flex justify-center">
                   <button
                     type="submit"
-                    className="btn rounded-md border-none btn-neutral"
                     disabled={isPending}
+                    className="btn rounded-md border-none btn-neutral"
                   >
-                    {isPending ? (
-                      <>
-                        <span className="loading loading-spinner loading-sm"></span>
-                        <span>Creating...</span>
-                      </>
-                    ) : (
-                      <>
-                        <IoPersonAdd size={15} />
-                        <span>Create Account</span>
-                      </>
-                    )}
+                    <IoPersonAdd size={15} />
+                    <span>Create Account</span>
                   </button>
                 </div>
               </form>

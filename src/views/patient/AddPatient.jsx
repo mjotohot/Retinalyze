@@ -4,6 +4,7 @@ import { FaUserInjured } from 'react-icons/fa'
 import { LuScanEye } from 'react-icons/lu'
 import { useState, useRef, useEffect } from 'react'
 import InputField from '../../components/commons/InputField'
+import { useLoadingStore } from '../../stores/useLoadingStore'
 import Modal from '../../components/commons/Modal'
 import { addPatientInputs } from '../../lib/addPatientInputs'
 import { useCreatePatientAccount } from '../../hooks/useCreatePatientAccount'
@@ -47,54 +48,54 @@ const AddPatient = () => {
     }
   }, [modalData.isOpen])
 
+  const { showLoading, hideLoading } = useLoadingStore()
+
   // Initialize retinal image prediction hook
-  const { mutateAsync: predictImage, isPending: isImagePredicting } =
-    useRetinalImagePrediction({
-      onSuccess: (data) => {
-        console.log('Retinal image prediction result:', data)
-      },
-      onError: (error) => {
-        console.error('Image prediction error:', error)
-      },
-    })
+  const { mutateAsync: predictImage } = useRetinalImagePrediction({
+    onSuccess: (data) => {
+      console.log('Retinal image prediction result:', data)
+    },
+    onError: (error) => {
+      console.error('Image prediction error:', error)
+    },
+  })
 
   // Initialize patient account creation hook
-  const { mutateAsync: createPatient, isPending: isCreatingPatient } =
-    useCreatePatientAccount({
-      onSuccess: (data) => {
-        // reset form
-        setFormData({
-          email: '',
-          full_name: '',
-          age: '',
-          sex: '',
-          phone_number: '',
-          address: '',
-          diabetic: '',
-          smoking: '',
-          hypertension: '',
-          stroke_history: '',
-          bp_systolic: '',
-          bp_diastolic: '',
-        })
-        setRetinalImage(null)
-        setImagePreview(null)
-        setModalData({
-          isOpen: true,
-          type: 'success',
-          message: data?.message || 'Patient account created successfully.',
-        })
-        modalRef.current?.showModal()
-      },
-      onError: (error) => {
-        setModalData({
-          isOpen: true,
-          type: 'error',
-          message: error.message || 'Account creation failed.',
-        })
-        modalRef.current?.showModal()
-      },
-    })
+  const { mutateAsync: createPatient } = useCreatePatientAccount({
+    onSuccess: (data) => {
+      // reset form
+      setFormData({
+        email: '',
+        full_name: '',
+        age: '',
+        sex: '',
+        phone_number: '',
+        address: '',
+        diabetic: '',
+        smoking: '',
+        hypertension: '',
+        stroke_history: '',
+        bp_systolic: '',
+        bp_diastolic: '',
+      })
+      setRetinalImage(null)
+      setImagePreview(null)
+      setModalData({
+        isOpen: true,
+        type: 'success',
+        message: data?.message || 'Patient account created successfully.',
+      })
+      modalRef.current?.showModal()
+    },
+    onError: (error) => {
+      setModalData({
+        isOpen: true,
+        type: 'error',
+        message: error.message || 'Account creation failed.',
+      })
+      modalRef.current?.showModal()
+    },
+  })
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -121,7 +122,16 @@ const AddPatient = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!retinalImage) {
+      setModalData({
+        isOpen: true,
+        type: 'error',
+        message: 'Retina image is required.',
+      })
+      return
+    }
     try {
+      showLoading('Creating patient...')
       let imagePredictionResult = null
       // Step 1: Predict retinal image if uploaded
       if (retinalImage) {
@@ -144,11 +154,10 @@ const AddPatient = () => {
       })
     } catch (error) {
       console.error('Form submission error:', error)
+    } finally {
+      hideLoading() // always hide loader even if error occurs
     }
   }
-
-  // Determine if any async operation is pending
-  const isPending = isImagePredicting || isCreatingPatient
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -233,6 +242,7 @@ const AddPatient = () => {
                           type="file"
                           accept="image/*"
                           className="file-input file-input-bordered mt-4 w-full max-w-xs"
+                          required
                           onChange={handleImageChange}
                         />
                       </div>
@@ -241,25 +251,8 @@ const AddPatient = () => {
                 </div>
 
                 <div className="flex justify-center mt-5 mb-5">
-                  <button
-                    type="submit"
-                    className="btn btn-neutral rounded-md"
-                    disabled={isPending}
-                  >
-                    {isPending ? (
-                      <>
-                        <span className="loading loading-spinner loading-sm"></span>
-                        <span>
-                          {isImagePredicting
-                            ? 'Analyzing Image...'
-                            : 'Creating...'}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Add Patient & Analyze</span>
-                      </>
-                    )}
+                  <button type="submit" className="btn btn-neutral rounded-md">
+                    Add Patient & Analyze
                   </button>
                 </div>
               </form>

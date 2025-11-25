@@ -50,6 +50,7 @@ export const addPatientInputs = [
     id: 'address',
     type: 'text',
     placeholder: "Enter patient's address",
+    required: true,
   },
   {
     label: 'Diabetic?',
@@ -60,6 +61,7 @@ export const addPatientInputs = [
       { value: '0', label: 'No' },
     ],
     placeholder: 'Select option',
+    required: true,
   },
   {
     label: 'Smoking?',
@@ -70,6 +72,7 @@ export const addPatientInputs = [
       { value: '0', label: 'No' },
     ],
     placeholder: 'Select option',
+    required: true,
   },
   {
     label: 'Hypertensive?',
@@ -80,6 +83,7 @@ export const addPatientInputs = [
       { value: '0', label: 'No' },
     ],
     placeholder: 'Select option',
+    required: true,
   },
   {
     label: 'Stroke History',
@@ -90,17 +94,20 @@ export const addPatientInputs = [
       { value: '0', label: 'No' },
     ],
     placeholder: 'Select option',
+    required: true,
   },
   {
     label: 'BP Systolic',
     id: 'bp_systolic',
     type: 'number',
     placeholder: 'Enter here',
+    required: true,
   },
   {
     label: 'BP Diastolic',
     id: 'bp_diastolic',
     type: 'number',
     placeholder: 'Enter here',
+    required: true,
   },
 ]
