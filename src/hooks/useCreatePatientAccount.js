@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createPatientAccount } from '../services/createPatientAccount'
 import { predictRetinalHealth } from '../services/retinalPrediction'
 import { combinePredictions } from '../services/combinePredictions'
@@ -14,6 +14,7 @@ export const useCreatePatientAccount = (options = {}) => {
   const { data: doctorId, isLoading: isDoctorLoading } = useDoctorId(
     profile?.id
   )
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({
@@ -105,13 +106,21 @@ export const useCreatePatientAccount = (options = {}) => {
     },
 
     onSuccess: (data) => {
-      console.log('=== SUCCESS ===')
       console.log('Patient account created successfully:', data)
+      // refresh dashboard counts
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardCounts'],
+        exact: false,
+      })
+      // Refresh patient list
+      queryClient.invalidateQueries({
+        queryKey: ['patientsByDoctor'],
+        exact: false,
+      })
       options?.onSuccess?.(data)
     },
 
     onError: (error) => {
-      console.error('=== ERROR ===')
       console.error('Error creating patient account:', error)
       console.error('Error details:', {
         message: error.message,

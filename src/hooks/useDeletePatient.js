@@ -1,24 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deletePatient } from '../services/deletePatient'
+import { toast } from 'react-hot-toast'
 
 /**
  * Custom hook for deleting a patient
  * @returns {Object} Mutation object with mutate, isLoading, etc.
  */
-export const useDeletePatient = () => {
+export const useDeletePatient = ({ queryKey }) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (patientId) => deletePatient(patientId),
     onMutate: async (patientId) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['patients'] })
+      await queryClient.cancelQueries({ queryKey })
 
       // Snapshot the previous value
-      const previousPatients = queryClient.getQueryData(['patients'])
+      const previousPatients = queryClient.getQueryData(queryKey)
 
       // Optimistically update to remove the patient from cache
-      queryClient.setQueriesData({ queryKey: ['patients'] }, (old) => {
+      queryClient.setQueriesData({ queryKey }, (old) => {
         if (!old?.pages) return old
 
         return {
@@ -44,13 +45,28 @@ export const useDeletePatient = () => {
     onError: (error, patientId, context) => {
       // Rollback to the previous value on error
       if (context?.previousPatients) {
-        queryClient.setQueryData(['patients'], context.previousPatients)
+        queryClient.setQueryData(queryKey, context.previousPatients)
       }
       console.error('Delete patient error:', error)
     },
     onSettled: () => {
-      // Always refetch after error or success to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      // Invalidate infinite patient lists
+      queryClient.invalidateQueries({
+        queryKey,
+        exact: false,
+      })
+
+      // Invalidate all search results
+      queryClient.invalidateQueries({
+        queryKey: ['search'],
+        exact: false,
+      })
+
+      // ✅ Invalidate the dashboard counts so DashCard refetches
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardCounts'],
+        exact: false,
+      })
     },
   })
 }

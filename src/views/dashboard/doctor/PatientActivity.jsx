@@ -45,8 +45,14 @@ const PatientActivity = () => {
       {/* Patient List */}
       <div className="space-y-4">
         {isLoading && patientData.length === 0 && (
-          <div className="py-4 text-gray-400 text-center italic">
+          <div className="py-4 text-sm text-gray-400 text-center italic">
             Loading patients...
+          </div>
+        )}
+
+        {!isLoading && patientData.length === 0 && (
+          <div className="py-4 text-sm text-gray-400 text-center italic">
+            No recent patient activity available.
           </div>
         )}
 

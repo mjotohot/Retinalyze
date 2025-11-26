@@ -1,9 +1,9 @@
 import { supabase } from '../api/supabaseClient'
 
-export const deletePatient = async (patientId) => {
+export const deleteDoctor = async (doctorId) => {
   const { data, error } = await supabase.functions.invoke('deleteFunction', {
     body: JSON.stringify({
-      patientId,
+      doctorId,
     }),
   })
 

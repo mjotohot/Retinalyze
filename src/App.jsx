@@ -1,5 +1,6 @@
 import AppRoutes from './routes/AppRoutes'
 import { useAuthStore } from './stores/useAuthStore'
+import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import GlobalLoader from './components/commons/GlobalLoader'
 
@@ -13,6 +14,7 @@ const App = () => {
 
   return (
     <>
+      <Toaster position="top-right" />
       <GlobalLoader />
       <AppRoutes />
     </>

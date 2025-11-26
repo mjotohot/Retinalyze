@@ -109,7 +109,6 @@ export async function searchPatient(query, doctorId) {
 }
 
 // Function to fetch patient counts by risk levels and time frame
-// Function to fetch patient counts by risk levels and time frame
 export async function fetchPatientCounts(doctorId) {
   const oneWeekAgo = new Date(
     Date.now() - 7 * 24 * 60 * 60 * 1000

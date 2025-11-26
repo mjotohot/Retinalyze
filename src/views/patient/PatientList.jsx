@@ -15,19 +15,28 @@ import maleAvatar from '../../assets/images/male.jpg'
 import femaleAvatar from '../../assets/images/female.jpg'
 import ResultModal from '../../components/commons/ResultModal'
 import { useDeletePatient } from '../../hooks/useDeletePatient'
+import Modal from '../../components/commons/Modal'
 
 const PatientList = () => {
   const modalRef = useRef()
   const loadMoreRef = useRef(null)
+  const deleteModalRef = useRef()
+
   const [selectedRisk, setSelectedRisk] = useState('')
   const [selectedPatient, setSelectedPatient] = useState('')
   const [deletingPatientId, setDeletingPatientId] = useState(null)
+  const [modalData, setModalData] = useState({
+    isOpen: false,
+    type: '',
+    message: '',
+  })
 
   const profile = useAuthStore((state) => state.profile)
   const { data: doctorId } = useDoctorId(profile?.id)
 
   // Delete patient mutation
-  const { mutate: deletePatientMutation, isLoading: isDeleting } = useDeletePatient()
+  const { mutate: deletePatientMutation, isLoading: isDeleting } =
+    useDeletePatient(['patientsByDoctor', doctorId])
 
   // Fetch patients by doctor with infinite scrolling
   const {
@@ -52,14 +61,20 @@ const PatientList = () => {
 
   // Handle delete with confirmation
   const handleDelete = (patientId, patientName) => {
-    if (window.confirm(`Are you sure you want to delete ${patientName}?`)) {
-      setDeletingPatientId(patientId)
-      deletePatientMutation(patientId, {
-        onSettled: () => {
-          setDeletingPatientId(null)
-        },
-      })
-    }
+    setModalData({
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete ${patientName}?`,
+      confirmLabel: 'Delete',
+      color: 'btn-error',
+      onConfirm: () => {
+        setDeletingPatientId(patientId)
+        deletePatientMutation(patientId, {
+          onSettled: () => setDeletingPatientId(null),
+        })
+      },
+    })
+
+    deleteModalRef.current?.showModal()
   }
 
   // Observe when the sentinel div (loadMoreRef) comes into view
@@ -182,9 +197,13 @@ const PatientList = () => {
                 {/* Display patient data */}
                 {!isLoading &&
                   displayedData.map((patient) => (
-                    <tr 
+                    <tr
                       key={patient.id}
-                      className={deletingPatientId === patient.id ? 'opacity-50 pointer-events-none' : ''}
+                      className={
+                        deletingPatientId === patient.id
+                          ? 'opacity-50 pointer-events-none'
+                          : ''
+                      }
                     >
                       <td>
                         <div className="flex items-center gap-3">
@@ -241,10 +260,17 @@ const PatientList = () => {
                           >
                             <IoMdEye size={18} />
                           </button>
-                          <button 
+                          <button
                             className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs"
-                            onClick={() => handleDelete(patient.id, patient.profile?.full_name)}
-                            disabled={isDeleting || deletingPatientId === patient.id}
+                            onClick={() =>
+                              handleDelete(
+                                patient.id,
+                                patient.profile?.full_name
+                              )
+                            }
+                            disabled={
+                              isDeleting || deletingPatientId === patient.id
+                            }
                           >
                             {deletingPatientId === patient.id ? (
                               <span className="loading loading-spinner loading-xs"></span>
@@ -281,6 +307,15 @@ const PatientList = () => {
           </div>
         </main>
       </div>
+
+      <Modal
+        ref={deleteModalRef}
+        title={modalData.title}
+        message={modalData.message}
+        confirmLabel={modalData.confirmLabel}
+        onConfirm={modalData.onConfirm}
+        color={modalData.color}
+      />
 
       <ResultModal
         ref={modalRef}

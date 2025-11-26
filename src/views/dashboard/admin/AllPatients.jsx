@@ -10,14 +10,25 @@ import { useSearch } from '../../../hooks/useSearch'
 import { searchPatient } from '../../../services/fetchPatient'
 import { riskFilterOptions } from '../../../lib/riskFilterOptions'
 import SelectFilters from '../../../components/commons/SelectFilters'
+import { useDeletePatient } from '../../../hooks/useDeletePatient'
+import Modal from '../../../components/commons/Modal'
 import maleAvatar from '../../../assets/images/male.jpg'
 import femaleAvatar from '../../../assets/images/female.jpg'
 
 const AllPatients = () => {
   const modalRef = useRef()
   const loadMoreRef = useRef(null)
+  const deleteModalRef = useRef()
+
   const [selectedRisk, setSelectedRisk] = useState('')
   const [selectedPatient, setSelectedPatient] = useState(null)
+  const [deletingPatientId, setDeletingPatientId] = useState(null)
+  const [modalData, setModalData] = useState({
+    isOpen: false,
+    type: '',
+    message: '',
+  })
+
   // Fetch patient data using the custom hook
   const {
     data: patients,
@@ -33,11 +44,35 @@ const AllPatients = () => {
     delay: 400,
   })
 
+  // Pass the same queryKey used in useFetchPatientData
+  const { mutate: deletePatientMutation, isLoading: isDeleting } =
+    useDeletePatient({
+      queryKey: ['all-patients', selectedRisk],
+    })
+
   // Flatten the paginated data into a single array
   const patientData = patients?.pages.flatMap((page) => page.data) ?? []
 
   //
   const displayedData = search ? results : patientData
+
+  // Handle delete with confirmation
+  const handleDelete = (patientId, patientName) => {
+    setModalData({
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete ${patientName}?`,
+      confirmLabel: 'Delete',
+      color: 'btn-error',
+      onConfirm: () => {
+        setDeletingPatientId(patientId)
+        deletePatientMutation(patientId, {
+          onSettled: () => setDeletingPatientId(null),
+        })
+      },
+    })
+
+    deleteModalRef.current?.showModal()
+  }
 
   // Observe when the sentinel div (loadMoreRef) comes into view
   useEffect(() => {
@@ -202,8 +237,20 @@ const AllPatients = () => {
                       >
                         <IoMdEye size={18} />
                       </button>
-                      <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
-                        <FaTrash size={14} />
+                      <button
+                        className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs"
+                        onClick={() =>
+                          handleDelete(patient.id, patient.profile?.full_name)
+                        }
+                        disabled={
+                          isDeleting || deletingPatientId === patient.id
+                        }
+                      >
+                        {deletingPatientId === patient.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : (
+                          <FaTrash size={14} />
+                        )}
                       </button>
                     </div>
                   </td>
@@ -234,6 +281,15 @@ const AllPatients = () => {
           Scroll horizontally to view full table →
         </div>
       </div>
+
+      <Modal
+        ref={deleteModalRef}
+        title={modalData.title}
+        message={modalData.message}
+        confirmLabel={modalData.confirmLabel}
+        onConfirm={modalData.onConfirm}
+        color={modalData.color}
+      />
 
       {/* Result Modal for viewing patient assessment results */}
       <ResultModal
