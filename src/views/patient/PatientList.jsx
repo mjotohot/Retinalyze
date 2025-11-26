@@ -14,15 +14,20 @@ import SelectFilters from '../../components/commons/SelectFilters'
 import maleAvatar from '../../assets/images/male.jpg'
 import femaleAvatar from '../../assets/images/female.jpg'
 import ResultModal from '../../components/commons/ResultModal'
+import { useDeletePatient } from '../../hooks/useDeletePatient'
 
 const PatientList = () => {
   const modalRef = useRef()
   const loadMoreRef = useRef(null)
   const [selectedRisk, setSelectedRisk] = useState('')
   const [selectedPatient, setSelectedPatient] = useState('')
+  const [deletingPatientId, setDeletingPatientId] = useState(null)
 
   const profile = useAuthStore((state) => state.profile)
   const { data: doctorId } = useDoctorId(profile?.id)
+
+  // Delete patient mutation
+  const { mutate: deletePatientMutation, isLoading: isDeleting } = useDeletePatient()
 
   // Fetch patients by doctor with infinite scrolling
   const {
@@ -44,6 +49,18 @@ const PatientList = () => {
 
   // Determine which data to display: search results or fetched patient data
   const displayedData = search ? results : patientData
+
+  // Handle delete with confirmation
+  const handleDelete = (patientId, patientName) => {
+    if (window.confirm(`Are you sure you want to delete ${patientName}?`)) {
+      setDeletingPatientId(patientId)
+      deletePatientMutation(patientId, {
+        onSettled: () => {
+          setDeletingPatientId(null)
+        },
+      })
+    }
+  }
 
   // Observe when the sentinel div (loadMoreRef) comes into view
   useEffect(() => {
@@ -165,7 +182,10 @@ const PatientList = () => {
                 {/* Display patient data */}
                 {!isLoading &&
                   displayedData.map((patient) => (
-                    <tr key={patient.id}>
+                    <tr 
+                      key={patient.id}
+                      className={deletingPatientId === patient.id ? 'opacity-50 pointer-events-none' : ''}
+                    >
                       <td>
                         <div className="flex items-center gap-3">
                           <div className="avatar">
@@ -217,11 +237,20 @@ const PatientList = () => {
                               setSelectedPatient(patient)
                               modalRef.current?.open()
                             }}
+                            disabled={deletingPatientId === patient.id}
                           >
                             <IoMdEye size={18} />
                           </button>
-                          <button className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs">
-                            <FaTrash size={14} />
+                          <button 
+                            className="btn btn-ghost text-red-500 hover:bg-white border-none shadow-none btn-xs"
+                            onClick={() => handleDelete(patient.id, patient.profile?.full_name)}
+                            disabled={isDeleting || deletingPatientId === patient.id}
+                          >
+                            {deletingPatientId === patient.id ? (
+                              <span className="loading loading-spinner loading-xs"></span>
+                            ) : (
+                              <FaTrash size={14} />
+                            )}
                           </button>
                         </div>
                       </td>

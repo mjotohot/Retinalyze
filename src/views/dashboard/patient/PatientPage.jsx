@@ -46,6 +46,16 @@ const PatientPage = () => {
       id: 'diabeties',
       value: patient.diabetic,
     },
+      {
+      label: 'Smoking',
+      id: 'smoking',
+      value: patient.smoking,
+    },
+      {
+      label: 'Stroke History',
+      id: 'stroke_history',
+      value: patient.stroke_history,
+    },
 
     {
       label: 'Hypertension',

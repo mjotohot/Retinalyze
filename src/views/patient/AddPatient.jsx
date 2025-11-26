@@ -77,6 +77,7 @@ const AddPatient = () => {
         stroke_history: '',
         bp_systolic: '',
         bp_diastolic: '',
+        birthday: '',
       })
       setRetinalImage(null)
       setImagePreview(null)
